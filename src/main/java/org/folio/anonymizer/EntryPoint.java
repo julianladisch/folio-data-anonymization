@@ -9,5 +9,6 @@ public class EntryPoint {
     Database.getInstance();
 
     LoanShuffler.shuffleLoans();
+    UserDataOverwriter.overwriteUserData();
   }
 }
