@@ -4,4 +4,4 @@ Folio Data Anonymization is a service that anonymizes or masks patron data in li
 
 ## Running
 
-Specify DB details in `src/main/resources/db.properties` or as env variables. Then, run `mvn exec:java`
+Specify DB details `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`, and `TENANT` as **exported** env variables (see `.env.sample`). Then, run `mvn exec:java`.
