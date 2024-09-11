@@ -31,21 +31,17 @@ public class UserDataOverwriter {
         Jdbi jdbi = Database.getInstance();
         String module = "mod-users";
         String tableName = "users";
-        String uuidValue = "xx-xxxx";  // Replace with actual UUID value
 
         String selectQuery = String.format(
-                "SELECT id, jsonb::text FROM %s WHERE id = '%s' LIMIT 1",
-                getTableName(module, tableName),
-                uuidValue
+                "SELECT id, jsonb::text FROM %s",
+                getTableName(module, tableName)
         );
 
-        System.out.println("the select query is " + selectQuery);
         String updateQuery = String.format(
                 "UPDATE %s SET jsonb = :newData::jsonb WHERE id = :id",
                 getTableName(module, tableName)
         );
 
-        System.out.println("the updated query is " + updateQuery);
 
         jdbi.useHandle(handle -> {
             List<Map<String, Object>> users = handle.createQuery(selectQuery)
@@ -97,7 +93,8 @@ public class UserDataOverwriter {
 
     private void anonymizeUserData(Map<String, Object> dataMap) {
         dataMap.put("barcode", faker.lorem().characters());
-        dataMap.put("externalSystemId", faker.idNumber().valid());
+        String customExternalSystemId = faker.number().digits(30);
+
 
         // Anonymize `personal` data if present
         Map<String, Object> personalData = (Map<String, Object>) dataMap.get("personal");
