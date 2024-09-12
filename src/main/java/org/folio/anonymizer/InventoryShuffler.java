@@ -332,7 +332,8 @@ public class InventoryShuffler {
   }
 
   private static TreeSet<UUID> getIds(String table, String condition) {
-    return new TreeSet<>(
+    TreeSet<UUID> result = new TreeSet<>();
+    result.addAll(
       Database
         .getInstance()
         .withHandle(handle ->
@@ -342,6 +343,7 @@ public class InventoryShuffler {
             .set()
         )
     );
+    return result;
   }
 
   // find IDs not currently being used by any records
