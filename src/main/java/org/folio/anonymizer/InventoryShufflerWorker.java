@@ -144,6 +144,7 @@ public class InventoryShufflerWorker implements Runnable {
         currBatch += 1;
       } catch (Exception e) {
         log.error("Error in main worker thread", e);
+        log.error("Giving back availableIds={}, toMove={}", availableIds, toMove);
         if (availableIds != null) {
           InventoryShuffler.availableDestinationsQueue.add(availableIds);
         }
@@ -169,7 +170,8 @@ public class InventoryShufflerWorker implements Runnable {
         batch.bind("srcId", src.get(i)).bind("destId", dest.get(i)).add();
       }
 
-      return batch.execute();
+      // we should be able to assume this won't take over an hour
+      return batch.setQueryTimeout(3600).execute();
     });
   }
 }

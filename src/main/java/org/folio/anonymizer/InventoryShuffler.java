@@ -25,7 +25,9 @@ import org.apache.commons.lang3.tuple.Pair;
 public class InventoryShuffler {
 
   private static final int CONCURRENT_VOLUME_EA = 1500;
-  private static final int CONCURRENT_THREADS = 40;
+  // 40 works better, but FSE got mad :(
+  // (and we crashed a db.r6g.xlarge, whoops)
+  private static final int CONCURRENT_THREADS = 30;
   private static final int CONCURRENT_SUBTHREADS = CONCURRENT_THREADS;
 
   private static final String SCHEMA = "mod-inventory-storage";
@@ -136,12 +138,12 @@ public class InventoryShuffler {
 
   static {
     fkUpdatePool = new ConcurrentHashMap<>();
-    for (Pair<String, String> pair : INSTANCE_SUBUPDATE_QUERIES) {
-      fkUpdatePool.put("instance-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
-    }
-    for (Pair<String, String> pair : HOLDING_SUBUPDATE_QUERIES) {
-      fkUpdatePool.put("holding-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
-    }
+    // for (Pair<String, String> pair : INSTANCE_SUBUPDATE_QUERIES) {
+    //   fkUpdatePool.put("instance-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
+    // }
+    // for (Pair<String, String> pair : HOLDING_SUBUPDATE_QUERIES) {
+    //   fkUpdatePool.put("holding-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
+    // }
     for (Pair<String, String> pair : ITEM_SUBUPDATE_QUERIES) {
       fkUpdatePool.put("item-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
     }
@@ -153,8 +155,8 @@ public class InventoryShuffler {
       mainUpdatePool.submit(new InventoryShufflerWorker(i));
     }
 
-    shuffleInstances();
-    shuffleHoldings();
+    // shuffleInstances();
+    // shuffleHoldings();
     shuffleItems();
 
     log.info("Shutting down...");
@@ -339,6 +341,7 @@ public class InventoryShuffler {
         .withHandle(handle ->
           handle
             .createQuery("SELECT id FROM %s WHERE %s".formatted(table, condition == null ? "1=1" : condition))
+            .setFetchSize(1000000)
             .mapTo(UUID.class)
             .set()
         )
