@@ -138,25 +138,24 @@ public class InventoryShuffler {
 
   static {
     fkUpdatePool = new ConcurrentHashMap<>();
-    // for (Pair<String, String> pair : INSTANCE_SUBUPDATE_QUERIES) {
-    //   fkUpdatePool.put("instance-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
-    // }
-    // for (Pair<String, String> pair : HOLDING_SUBUPDATE_QUERIES) {
-    //   fkUpdatePool.put("holding-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
-    // }
+    for (Pair<String, String> pair : INSTANCE_SUBUPDATE_QUERIES) {
+      fkUpdatePool.put("instance-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
+    }
+    for (Pair<String, String> pair : HOLDING_SUBUPDATE_QUERIES) {
+      fkUpdatePool.put("holding-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
+    }
     for (Pair<String, String> pair : ITEM_SUBUPDATE_QUERIES) {
       fkUpdatePool.put("item-" + pair.getLeft(), Executors.newFixedThreadPool(CONCURRENT_SUBTHREADS));
     }
   }
 
-  @SneakyThrows
   public static void shuffle() {
     for (int i = 0; i < CONCURRENT_THREADS; i++) {
       mainUpdatePool.submit(new InventoryShufflerWorker(i));
     }
 
-    // shuffleInstances();
-    // shuffleHoldings();
+    shuffleInstances();
+    shuffleHoldings();
     shuffleItems();
 
     log.info("Shutting down...");
@@ -168,6 +167,7 @@ public class InventoryShuffler {
 
   // counting all 10.9M instances took 5s
   // fetching all 10.9M instance IDs took 59s (warm cache)
+  @SneakyThrows(InterruptedException.class)
   private static void shuffleInstances() {
     currentQueryType.set("instance");
 
@@ -189,7 +189,9 @@ public class InventoryShuffler {
     waitForDone("instances", allIds.size());
 
     log.info("Sending temporary IDs to get restored");
+    inNeedOfMovingLock.acquire();
     inNeedOfMoving.get().addAll(temporaryIds);
+    inNeedOfMovingLock.release();
     waitForDone("instances-cleanup", temporaryIds.size());
 
     log.info("Shutting down executors for instance FK updates...");
@@ -206,6 +208,7 @@ public class InventoryShuffler {
 
   // counting all 11.7M took 43s (very cold cache)
   // fetching all 11.7M IDs took 90s (very cold cache)
+  @SneakyThrows(InterruptedException.class)
   private static void shuffleHoldings() {
     currentQueryType.set("holding");
 
@@ -227,7 +230,9 @@ public class InventoryShuffler {
     waitForDone("holdings", allIds.size());
 
     log.info("Sending temporary IDs to get restored");
+    inNeedOfMovingLock.acquire();
     inNeedOfMoving.get().addAll(temporaryIds);
+    inNeedOfMovingLock.release();
     waitForDone("holdings-cleanup", temporaryIds.size());
 
     log.info("Shutting down executors for holding FK updates...");
@@ -244,6 +249,7 @@ public class InventoryShuffler {
 
   // counting all 9.8M took 15s (very cold cache)
   // fetching all 9.8M IDs took 90s (very cold cache)
+  @SneakyThrows(InterruptedException.class)
   private static void shuffleItems() {
     currentQueryType.set("item");
 
@@ -265,7 +271,9 @@ public class InventoryShuffler {
     waitForDone("items", allIds.size());
 
     log.info("Sending temporary IDs to get restored");
+    inNeedOfMovingLock.acquire();
     inNeedOfMoving.get().addAll(temporaryIds);
+    inNeedOfMovingLock.release();
     waitForDone("items-cleanup", temporaryIds.size());
 
     log.info("Shutting down executors for item FK updates...");
