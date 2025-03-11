@@ -1,7 +1,30 @@
-# folio-data-anonymization
-
+## folio-data-anonymization
 Folio Data Anonymization is a service that anonymizes or masks patron data in library records to ensure privacy protection.
 
-## Running
+## Environment Variables 
+After cloning this repository, create a local .env file and add the following variables:
 
-Specify DB details `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`, and `TENANT` as **exported** env variables (see `.env.sample`). Then, run `mvn exec:java`.
+```bash
+export PGHOST="localhost"
+export PGPORT=5432
+export PGUSER="user"
+export PGPASSWORD="password"
+export PGDATABASE="dbname"
+export TENANT="diku"
+```
+
+## Dependency Management and Packaging
+To install the dependencies, run:
+- `pipx install poetry` or `pip install -r requirements.txt`
+- `poetry install`
+
+## Running
+- `source .env`
+- `poetry run`
+
+## Tests
+To run tests, install postgresql (Mac OSX) or libpq (Ubuntu):
+`brew install postgresql`
+`sudo apt-get install libpq-dev`
+Running the tests:
+- `poetry run pytest tests`
