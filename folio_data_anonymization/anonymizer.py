@@ -18,6 +18,6 @@ def anonymize(data: list):
             case _:
                 logger.info(f"No anonymizer for {d}.")
 
+
 if __name__ == "__main__":
     anonymize(data=data)
-
