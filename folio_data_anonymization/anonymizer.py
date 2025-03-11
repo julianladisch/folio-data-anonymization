@@ -7,9 +7,8 @@ logger = logging.getLogger(__name__)
 data: list = ["circulation", "inventory", "organizations", "users"]
 
 
-def anonymize(**kwargs) -> str:
+def anonymize(data: list):
     logging.basicConfig(filename="anonymizer.log", level=logging.INFO)
-    data = kwargs.get("data", [])
     for d in data:
         match d:
             case "users":
