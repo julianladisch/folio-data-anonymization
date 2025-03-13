@@ -1,4 +1,3 @@
-import os
 import logging
 from folio_data_anonymization.users import Users
 
@@ -8,7 +7,12 @@ data: list = ["circulation", "inventory", "organizations", "users"]
 
 
 def anonymize(data: list):
-    logging.basicConfig(filename="anonymizer.log", filemode="w", format="%(asctime)s %(message)s", level=logging.INFO)
+    logging.basicConfig(
+        filename="anonymizer.log",
+        filemode="w",
+        format="%(asctime)s %(message)s",
+        level=logging.INFO,
+    )
     for d in data:
         match d:
             case "users":
