@@ -1,6 +1,5 @@
 import psycopg
 import os
-from psycopg.rows import dict_row
 
 
 class Database(object):
@@ -15,10 +14,6 @@ class Database(object):
 
     def schema_name(self, schema: str) -> str:
         return f"{os.getenv("TENANT")}_{schema}"
-    
 
     def table_name(self, schema: str, table: str) -> str:
         return f"{self.schema_name(schema)}.{table}"
-
-
-
