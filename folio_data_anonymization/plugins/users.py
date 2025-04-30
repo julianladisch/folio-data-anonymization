@@ -1,5 +1,5 @@
 import logging
-from folio_data_anonymization.database import Database
+from folio_data_anonymization.plugins.database import Database
 
 logger = logging.getLogger(__name__)
 

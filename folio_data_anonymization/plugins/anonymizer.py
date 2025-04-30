@@ -1,5 +1,5 @@
 import logging
-from folio_data_anonymization.users import Users
+from folio_data_anonymization.plugins.users import Users
 
 logger = logging.getLogger(__name__)
 

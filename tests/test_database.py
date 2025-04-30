@@ -2,8 +2,8 @@ import pytest
 import psycopg
 import os
 from pytest_postgresql import factories
-from folio_data_anonymization.database import Database
-from folio_data_anonymization.users import Users
+from folio_data_anonymization.plugins.database import Database
+from folio_data_anonymization.plugins.users import Users
 
 
 @pytest.fixture
@@ -79,7 +79,9 @@ def test_table_name(env_vars, postgresql):
 
 
 def test_anonymize_users(mocker, postgresql, caplog):
-    mocker.patch("folio_data_anonymization.users.Users", return_value=postgresql)
+    mocker.patch(
+        "folio_data_anonymization.plugins.users.Users", return_value=postgresql
+    )
     users_task = Users()
     users_task.anonymize_users()
     assert "Anonymizing diku_mod_users.users" in caplog.text
