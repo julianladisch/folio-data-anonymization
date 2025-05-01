@@ -53,7 +53,11 @@ data:
 
 Then apply it using `kubectl -n $namespace apply -f secret.yaml`
 
-Install Apache Airflow in a Kubernetes cluster using Helm:
+## Install Apache Airflow in a Kubernetes cluster 
+#### Local development:
+With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/docs/intro/install/) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) installed, enable [Kubernetes in Docker Desktop](https://docs.docker.com/desktop/features/kubernetes/)
+
+Then, using Helm:
 ```
 helm --namespace $NAMESPACE install -f airflow-values.yaml airflow-$NAMESPACE oci://registry-1.docker.io/bitnamicharts/airflow
 ```
