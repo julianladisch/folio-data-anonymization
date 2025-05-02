@@ -35,3 +35,29 @@ To run tests, install postgresql (Mac OSX) or libpq (Ubuntu):
 `sudo apt-get install libpq-dev`
 Running the tests:
 - `poetry run pytest tests`
+
+## Airflow
+Create a secret.yaml file:
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: airflow-user
+type: Opaque
+data:
+  airflow-fernet-key: {any fernet key}
+  airflow-password: {password from vault}
+  airflow-secret-key: {any secret key}
+  airflow-jwt-secret-key: {any JWT key}
+```
+
+Then apply it using `kubectl -n $namespace apply -f secret.yaml`
+
+## Install Apache Airflow in a Kubernetes cluster 
+#### Local development:
+With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/docs/intro/install/) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) installed, enable [Kubernetes in Docker Desktop](https://docs.docker.com/desktop/features/kubernetes/)
+
+Then, using Helm:
+```
+helm --namespace $NAMESPACE install -f airflow-values.yaml airflow-$NAMESPACE oci://registry-1.docker.io/bitnamicharts/airflow
+```

@@ -1,0 +1,32 @@
+executor: KubernetesExecutor
+redis:
+  enabled: false
+rbac:
+  create: true
+serviceAccount:
+  create: true
+configuration:
+  core:
+    dags_folder: "/opt/bitnami/airflow/dags/git_dags"
+    plugins_folder: "/opt/bitnami/airflow/plugins/git_plugins"
+    load_examples: "False"
+auth:
+  username: airflow
+  existingSecret: airflow-user
+dags:
+  enabled: true
+  repositories:
+    - repository: "https://github.com/folio-org/folio-data-anonymization.git"
+      branch: "main"
+      name: "dags"
+      path: /folio_data_anonymization/dags
+plugins:
+  enabled: true
+  repositories:
+    - repository: "https://github.com/folio-org/folio-data-anonymization.git"
+      branch: "main"
+      name: "plugins"
+      path: /folio_data_anonymization/plugins
+extraEnvVars: |
+  - name: PYTHONPATH
+    value: "/opt/bitnami/airflow"

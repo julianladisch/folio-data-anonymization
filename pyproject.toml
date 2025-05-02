@@ -6,8 +6,9 @@ authors = ["Shelley Doljack <sdoljack@stanford.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = ">=3.11,<3.13"
 psycopg = "^3.2.4"
+apache-airflow = "^3.0.0"
 
 [tool.poetry.group.test.dependencies]
 black = "^24.10.0"
