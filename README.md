@@ -59,5 +59,11 @@ With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/
 
 Then, using Helm:
 ```
-helm --namespace $NAMESPACE install -f airflow-values.yaml airflow-$NAMESPACE oci://registry-1.docker.io/bitnamicharts/airflow
+helm --namespace $NAMESPACE install --set ingress.enabled=true --set ingress.hostname=$HOSTNAME -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
+```
+
+To upgrade airflow release, do:
+```
+export PASSWORD=$(kubectl get secret --namespace $NAMESPACE airflow-postgresql -o jsonpath="{.data.password}" | base64 -d)
+helm --namespace $NAMESPACE upgrade --set global.postgresql.auth.password=$PASSWORD -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
