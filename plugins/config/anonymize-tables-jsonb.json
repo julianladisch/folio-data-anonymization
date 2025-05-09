@@ -32,8 +32,12 @@
     "table_name": "sul_mod_courses.coursereserves_courselistings",
     "anonymize": {
       "jsonb": [
-        "instructorObjects[*], name",
-        "instructorObjects[*], barcode"
+        {
+          "instructorObjects": [
+            "name",
+            "barcode"
+          ]
+        }
       ]
     }
   },
@@ -50,15 +54,27 @@
     "table_name": "sul_mod_organizations_storage.contacts",
     "anonymize": {
       "jsonb": [
-        "emails[*], value",
+        {
+          "emails": [
+            "value"
+          ]
+        },
         "lastName",
         "firstName",
-        "addresses[*], addressLine1",
-        "addresses[*], addressLine2",
-        "addresses[*], city",
-        "addresses[*], stateRegion",
-        "addresses[*], country",
-        "urls[*], value"
+        {
+          "addresses": [
+            "addressLine1",
+            "addressLine2",
+            "city",
+            "stateRegion",
+            "country"
+          ]
+        },
+        {
+          "urls": [
+            "value"
+          ]
+        }
       ]
     }
   },
@@ -82,21 +98,48 @@
     }
   },
   {
-    "table_name": "sul_mod_users.users",
+    "table_name": "sul_mod_organizations_storage.organizations",
     "anonymize": {
       "jsonb": [
-        "barcode",
-        "personal, email",
-        "personal, phone",
-        "personal, lastName",
-        "addresses[*], city",
-        "addresses[*], region",
-        "addresses[*], countryId",
-        "addresses[*], addressLine1",
-        "addresses[*], addressLine2",
-        "personal, firstname",
-        "personal, mobilePhone",
-        "username"
+        "code",
+        "name",
+        {
+          "emails": [
+            "value"
+          ]
+        },
+        {
+          "aliases": [
+            "value"
+          ]
+        },
+        {
+          "phoneNumbers": [
+            "phoneNumber",
+            "addressLine1",
+            "addressLine2",
+            "city",
+            "stateRegion",
+            "country",
+            "zipCode"
+          ]
+        },
+        {
+          "urls": [
+            "value"
+          ]
+        },
+        "edi, libEdiType",
+        "edi, vendorEdiType"
+      ]
+    },
+    "set_to_empty": {
+      "jsonb": [
+        {
+          "aliases": [
+            "description"
+          ]
+        }
       ]
     }
   }
