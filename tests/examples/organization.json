@@ -1,0 +1,64 @@
+{
+  "id": "6aabe470-6795-4519-9055-937173b7515f",
+  "edi": {
+    "ediFtp": {
+      "ftpMode": "ASCII",
+      "ftpFormat": "SFTP",
+      "ftpConnMode": "Active"
+    },
+    "libEdiType": "31C/US-SAN",
+    "vendorEdiType": "31C/US-SAN"
+  },
+  "code": "WORKERB-SUL",
+  "name": "Enter Sandman",
+  "urls": [],
+  "emails": [
+    {
+      "value": "enter_sandmanr50@gmail.com ",
+      "isPrimary": true,
+      "categories": []
+    }
+  ],
+  "status": "Active",
+  "aliases": [
+    {"value": "Worker Sleeper", "description": "A set of workers"}
+  ],
+  "erpCode": "897578FEEDER",
+  "accounts": [],
+  "contacts": [],
+  "isVendor": true,
+  "metadata": {
+    "createdDate": "2023-11-14T04:08:43.815Z",
+    "updatedDate": "2024-04-19T15:55:27.929Z",
+    "createdByUserId": "08a8b799-1f76-419b-8d3a-c91d8ae12c25",
+    "updatedByUserId": "08a8b799-1f76-419b-8d3a-c91d8ae12c25"
+  },
+  "addresses": [
+    {
+      "city": "Brooklyn",
+      "country": "USA",
+      "zipCode": "11229",
+      "isPrimary": true,
+      "categories": [],
+      "stateRegion": "NY",
+      "addressLine1": "60345 W 9th St"
+    }
+  ],
+  "acqUnitIds": [
+    "bd6c5f05-9ab3-41f7-8361-1c1e847196d3"
+  ],
+  "agreements": [],
+  "changelogs": [],
+  "interfaces": [],
+  "phoneNumbers": [
+    {
+      "isPrimary": true,
+      "categories": [],
+      "phoneNumber": "910 360 2930"
+    }
+  ],
+  "paymentMethod": "EFT",
+  "vendorCurrencies": [],
+  "organizationTypes": [],
+  "exportToAccounting": true
+}
