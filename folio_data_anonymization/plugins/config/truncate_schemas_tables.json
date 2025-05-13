@@ -6,7 +6,6 @@
     "mod_bulk_operations.bulk_operation_execution_content",
     "mod_bulk_operations.bulk_operation_rule",
     "mod_bulk_operations.bulk_operation_rule_details",
-    "mod_configuration.audit_config_data",
     "mod_copycat.profile",
     "mod_data_export.job_executions",
     "mod_data_export_spring.job",
