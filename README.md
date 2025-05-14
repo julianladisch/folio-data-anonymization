@@ -69,7 +69,7 @@ With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/
 
 Then, using Helm:
 ```
-helm --namespace $NAMESPACE install --set ingress.enabled=true --set ingress.hostname=$HOSTNAME -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
+helm --namespace $NAMESPACE install -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
 
 To upgrade airflow release, do:
