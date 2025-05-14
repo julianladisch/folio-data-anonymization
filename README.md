@@ -51,6 +51,16 @@ data:
   airflow-jwt-secret-key: {any JWT key}
 ```
 
+Instructions on generating a Fernet key can be found at [How-to Guides: Securing Connections](https://airflow.apache.org/docs/apache-airflow/1.10.4/howto/secure-connections.html?highlight=fernet)
+Example:
+```
+poetry run python3
+>>> from cryptography.fernet import Fernet
+>>> fernet_key= Fernet.generate_key()
+>>> decoded_fernet_key = fernet_key.decode()
+echo -n $decoded_fernet_key | base64
+```
+
 Then apply it using `kubectl -n $namespace apply -f secret.yaml`
 
 ## Install Apache Airflow in a Kubernetes cluster 
@@ -59,5 +69,11 @@ With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/
 
 Then, using Helm:
 ```
-helm --namespace $NAMESPACE install -f airflow-values.yaml airflow-$NAMESPACE oci://registry-1.docker.io/bitnamicharts/airflow
+helm --namespace $NAMESPACE install -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
+```
+
+To upgrade airflow release, do:
+```
+export PASSWORD=$(kubectl get secret --namespace $NAMESPACE airflow-postgresql -o jsonpath="{.data.password}" | base64 -d)
+helm --namespace $NAMESPACE upgrade --set global.postgresql.auth.password=$PASSWORD -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
