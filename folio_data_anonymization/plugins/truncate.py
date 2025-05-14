@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 
 from airflow.models import Variable
-from airflow.sdk import get_current_context
+from airflow.operators.python import get_current_context
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
 logger = logging.getLogger(__name__)
@@ -43,8 +43,8 @@ def truncate_db_objects(schemas_tables, **kwargs):
 
 def tables_json_file(**kwargs) -> Path:
     _path = (
-        Path(kwargs.get("airflow", "/opt/airflow"))
-        / "../plugins/config/truncate_schemas_tables.json"
+        Path(kwargs.get("airflow", "/opt/bitnami/airflow"))
+        / "plugins/git_plugins/config/truncate_schemas_tables.json"
     )
 
     return _path
@@ -52,8 +52,8 @@ def tables_json_file(**kwargs) -> Path:
 
 def sql_file(**kwargs) -> Path:
     sql_path = (
-        Path(kwargs.get("airflow", "/opt/airflow"))
-        / "../plugins/sql/truncate_schemas_tables.sql"
+        Path(kwargs.get("airflow", "/opt/bitnami/airflow"))
+        / "plugins/git_plugins/sql/truncate_schemas_tables.sql"
     )
 
     return sql_path
