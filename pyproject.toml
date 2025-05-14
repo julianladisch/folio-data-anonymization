@@ -10,6 +10,7 @@ python = ">=3.11,<3.13"
 psycopg = {extras = ["binary"], version = "^3.2.8"}
 apache-airflow = "^3.0.0"
 faker = "^37.1.0"
+jsonpath-ng = "^1.7.0"
 
 [tool.poetry.group.test.dependencies]
 apache-airflow = "^3.0.0"
