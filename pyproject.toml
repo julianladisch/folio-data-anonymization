@@ -8,12 +8,13 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
 psycopg = {extras = ["binary"], version = "^3.2.8"}
-apache-airflow = "^3.0.0"
+apache-airflow = "^2.10.5"
 faker = "^37.1.0"
 jsonpath-ng = "^1.7.0"
+pydantic = "^2.11.4"
 
 [tool.poetry.group.test.dependencies]
-apache-airflow = "^3.0.0"
+apache-airflow = "^2.10.5"
 black = "^24.10.0"
 mypy = "^1.13.0"
 flake8 = "^7.1.1"
