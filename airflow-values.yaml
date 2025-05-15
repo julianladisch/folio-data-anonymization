@@ -28,6 +28,8 @@ plugins:
       branch: "main"
       name: "plugins"
       path: /folio_data_anonymization/plugins
+scheduler:
+  resourcesPreset: "large"
 extraEnvVars: |
   - name: PYTHONPATH
     value: "/opt/bitnami/airflow"
