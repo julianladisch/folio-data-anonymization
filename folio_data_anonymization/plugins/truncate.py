@@ -1,5 +1,6 @@
 import json
 import logging
+import psycopg2
 
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def truncate_db_objects(schemas_tables, **kwargs):
         database=kwargs.get("database", "okapi"),
         sql=query,
         parameters={
-            "schemas_tables": schemas_tables,
+            "schemas_tables": psycopg2.extensions.AsIs(schemas_tables),
         },
     ).execute(context)
 
