@@ -49,34 +49,5 @@
         "barcode"
       ]
     }
-  },
-  {
-    "table_name": "mod_users.users",
-    "anonymize": {
-      "jsonb": [
-        {
-          "addresses": [
-            "countryId",
-            "addressLine1",
-            "addressLine2",
-            "city",
-            "region",
-            "postalCode"
-          ]
-        },
-        "personal, pronouns",
-        "personal, lastName",
-        "personal, firstName",
-        "personal, middleName",
-        "personal, preferredFirstName",
-        "personal, email",
-        "personal, phone",
-        "personal, mobilePhone",
-        "personal, dateOfBirth",
-        "username",
-        "barcode",
-        "externalSystemId"
-      ]
-    }
   }
 ]
