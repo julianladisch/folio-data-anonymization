@@ -1,0 +1,151 @@
+[
+  {
+    "table_name": "mod_organizations_storage.contacts",
+    "anonymize": {
+      "jsonb": [
+        [
+          "firstName",
+          "first_name"
+        ],
+        [
+          "lastName",
+          "last_name"
+        ],
+        [
+          "emails[*].value",
+          "email"
+        ],
+        [
+          "addresses[*].addressLine1",
+          "street_address"
+        ],
+        [
+          "addresses[*].addressLine2",
+          "street_address"
+        ],
+        [
+          "addresses[*].city",
+          "city"
+        ],
+        [
+          "addresses[*].stateRegion",
+          "state"
+        ],
+        [
+          "addresses[*].country",
+          "country"
+        ],
+        [
+          "addresses[*].zipCode",
+          "zipcode"
+        ],
+        [
+          "urls[*].value",
+          "url"
+        ]
+      ]
+    }
+  },
+  {
+    "table_name": "mod_organizations_storage.interface_credentials",
+    "anonymize": {
+      "jsonb": [
+        [
+          "username",
+          "user_name"
+        ],
+        [
+          "password",
+          "password"
+        ]
+      ]
+    }
+  },
+  {
+    "table_name": "mod_organizations_storage.interfaces",
+    "anonymize": {
+      "jsonb": [
+        [
+          "uri",
+          "uri"
+        ],
+        [
+          "name",
+          "company"
+        ],
+        [
+          "notes",
+          "catch_phrase"
+        ]
+      ]
+    }
+  },
+  {
+    "table_name": "mod_organizations_storage.organizations",
+    "anonymize": {
+      "jsonb": [
+        [
+          "code",
+          "org_code"
+        ],
+        [
+          "name",
+          "company"
+        ],
+        [
+          "emails[*].value",
+          "email"
+        ],
+        [
+          "aliases[*].value",
+          "company"
+        ],
+        [
+          "phoneNumber[*].phoneNumber",
+          "phone_number"
+        ],
+        [
+          "addresses[*].addressLine1",
+          "street_address"
+        ],
+        [
+          "addresses[*].addressLine2",
+          "street_address"
+        ],
+        [
+          "addresses[*].city",
+          "city"
+        ],
+        [
+          "addresses[*].stateRegion",
+          "state"
+        ],
+        [
+          "addresses[*].country",
+          "country_code"
+        ],
+        [
+          "addresses[*].zipCode",
+          "zipcode"
+        ],
+        [
+          "urls[*].value",
+          "url"
+        ],
+        [
+          "edi.libEdiType",
+          "edi_type"
+        ],
+        [
+          "edi.vendorEdiType",
+          "edi_type"
+        ]
+      ]
+    },
+    "set_to_empty": {
+      "jsonb": [
+        "aliases[*].description"
+      ]
+    }
+  }
+]

@@ -13,7 +13,7 @@ sys.path.append(str(dir))
 @pytest.fixture
 def configurations():
     configuration = {}
-    for file_path in (root_directory / "plugins/config").glob("*.json"):
+    for file_path in (root_directory / "folio_data_anonymization/plugins/config ").glob("*.json"):
         config_contents = json.loads(file_path.read_text())
         configuration[file_path.stem] = config_contents
     return configuration
