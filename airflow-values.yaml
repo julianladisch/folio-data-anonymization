@@ -30,6 +30,13 @@ plugins:
       path: /folio_data_anonymization/plugins
 scheduler:
   resourcesPreset: "large"
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 180
+    periodSeconds: 20
+    timeoutSeconds: 60
+    failureThreshold: 300
+    successThreshold: 1
 extraEnvVars: |
   - name: PYTHONPATH
     value: "/opt/bitnami/airflow"
