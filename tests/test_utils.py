@@ -46,3 +46,4 @@ def test_user_fake_jsonb(configurations):
         user["personal"]["addresses"][0]["addressLine1"]
         != original_user["personal"]["addresses"][0]["addressLine1"]
     )
+    assert len(user.get('customFields')) == 0

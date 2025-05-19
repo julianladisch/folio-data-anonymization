@@ -76,6 +76,11 @@
           "external_system_id"
         ]
       ]
+    },
+    "set_to_empty": {
+      "jsonb": [
+        "customFields"
+      ]
     }
   }
 ]
