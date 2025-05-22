@@ -2,6 +2,7 @@ import logging
 
 from pathlib import Path
 
+from airflow.models import Variable
 from airflow.operators.python import get_current_context
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 def fetch_number_of_records(**kwargs) -> int:
     context = get_current_context()
     schema_table_name = kwargs.get("schema", "")
+    tenant_schema_table = f"{Variable.get("TENANT_ID")}_{schema_table_name}"
 
     with open(sql_count_file()) as sqv:
         query = sqv.read()
@@ -20,7 +22,7 @@ def fetch_number_of_records(**kwargs) -> int:
         conn_id="postgres_folio",
         database=kwargs.get("database", "okapi"),
         sql=query,
-        parameters={"schema_name": schema_table_name},
+        parameters={"schema_name": tenant_schema_table},
     ).execute(
         context
     )  # type: ignore
