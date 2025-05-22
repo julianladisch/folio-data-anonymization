@@ -66,7 +66,7 @@ with DAG(
         "configuration_files": Param(
             "Choose a configuration",
             type="string",
-            description="Choose one of the configurations to set the database selection criteria",
+            description="Choose one of the configurations.",
             enum=config_file_names(),
         ),
     },
