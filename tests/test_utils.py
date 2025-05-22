@@ -13,7 +13,7 @@ def test_org_fake_jsonb(configs):
         organization = json.load(fo)
 
     original_org = copy.deepcopy(organization)
-    for row in configs.get("anonymize-organization-tables"):
+    for row in configs.get("anonymize_organization_tables"):
         if row['table_name'].startswith("mod_organizations_storage.organizations"):
             org_config = row
 
