@@ -3,10 +3,16 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.decorators import task
 
-from plugins.git_plugins.truncate import (
-    tables_list,
-    truncate_db_objects,
-)
+try:
+    from plugins.git_plugins.truncate import (
+        tables_list,
+        truncate_db_objects,
+    )
+except (ImportError, ModuleNotFoundError):
+    from folio_data_anonymization.plugins.truncate import (
+        tables_list,
+        truncate_db_objects,
+    )
 
 
 default_args = {
