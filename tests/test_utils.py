@@ -5,12 +5,12 @@ import pathlib
 from folio_data_anonymization.plugins.utils import fake_jsonb
 
 
-def test_org_fake_jsonb(configurations):
+def test_org_fake_jsonb(configs):
     with (pathlib.Path(__file__).parent / "fixtures/organization.json").open() as fo:
         organization = json.load(fo)
 
     original_org = copy.deepcopy(organization)
-    for row in configurations.get("anonymize_organization_tables"):
+    for row in configs.get("anonymize_organization_tables"):
         if row['table_name'].startswith("mod_organizations_storage.organizations"):
             org_config = row
 
