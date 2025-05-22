@@ -1,0 +1,1 @@
+SELECT count(*) from %(schema_name)s;
