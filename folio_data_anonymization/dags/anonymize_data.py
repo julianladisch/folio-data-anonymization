@@ -1,13 +1,14 @@
 """Anonymize Tables in FOLIO based on Configuration File."""
-import json
-
-from datetime import datetime, timedelta
+import logging
+from datetime import timedelta
 
 from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from airflow.operators.python import get_current_context
 
+
+logger = logging.getLogger(__name__)
 
 default_args = {
     "depends_on_past": False,
@@ -36,8 +37,11 @@ with DAG(
         # select dag will pass json config file as dict
         config: dict = params.get("configuration", {})
         # select dag will pass tuples of ((id, jsonb), (id, jsonb)...)
-        data: tuple = params.get("data", )
+        data: tuple = params.get(
+            "data",
+        )
         tenant = Variable.get("TENANT", "diku")
+        logger.info(f"Anonymizing data for {tenant}")
         task_instance.xcom_push(key="tenant", value=tenant)
         task_instance.xcom_push(key="data", value=data)
         return config
@@ -48,12 +52,13 @@ with DAG(
         Anonymize a specific table based on the provided configuration.
         """
         context = get_current_context()
-        context["table_name"] = table_info
+        # context["table_name"] = table_info
+        schema_table_name = context.get("table_name")
         task_instance = kwargs["ti"]
         tenant = task_instance.xcom_pull(key="tenant")
+        table_name = f"{tenant}_{schema_table_name}"
         data = task_instance.xcom_pull(key="data")
+        logger.info(f"Processing {len(data)} records from {table_name}")
 
     config = setup()
     anonymize_table.expand(table_info=config)
-    
-
