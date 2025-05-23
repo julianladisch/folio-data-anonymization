@@ -1,4 +1,5 @@
 """Anonymize Tables in FOLIO based on Configuration File."""
+
 import logging
 from datetime import timedelta
 
