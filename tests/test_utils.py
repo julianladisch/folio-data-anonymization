@@ -27,12 +27,12 @@ def test_org_fake_jsonb(configs):
     assert len(organization["aliases"][0]["description"]) == 0
 
 
-def test_user_fake_jsonb(configurations):
+def test_user_fake_jsonb(configs):
     with (pathlib.Path(__file__).parent / "fixtures/user.json").open() as fo:
         user = json.load(fo)
 
     original_user = copy.deepcopy(user)
-    for row in configurations.get("anonymize_users_tables"):
+    for row in configs.get("anonymize_users_tables"):
         if row['table_name'].startswith("mod_users.users"):
             user_config = row
 
