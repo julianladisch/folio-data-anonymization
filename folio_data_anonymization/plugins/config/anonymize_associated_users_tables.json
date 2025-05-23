@@ -3,8 +3,18 @@
     "table_name": "mod_audit.circulation_logs",
     "anonymize": {
       "jsonb": [
-        "source",
-        "userBarcode"
+        [
+          "linkToIds.userId",
+          "id"
+        ],
+        [
+          "source",
+          "personal.lastName, personal.firstName"
+        ],
+        [
+          "userBarcode",
+          "barcode"
+        ]
       ]
     }
   },
@@ -12,14 +22,46 @@
     "table_name": "mod_circulation_storage.request",
     "anonymize": {
       "jsonb": [
-        "requester, barcode",
-        "requester, lastName",
-        "requester, firstName",
-        "requester, middleName",
-        "proxy, barcode",
-        "proxy, lastName",
-        "proxy, firstName",
-        "proxy, middleName"
+        [
+          "requesterId",
+          "id"
+        ],
+        [
+          "requester.barcode",
+          "barcode"
+        ],
+        [
+          "requester.lastName",
+          "personal.lastName"
+        ],
+        [
+          "requester.firstName",
+          "personal.firstName"
+        ],
+        [
+          "requester.middleName",
+          "personal.middleName"
+        ],
+        [
+          "proxyUserId",
+          "id"
+        ],
+        [
+          "proxy.barcode",
+          "barcode"
+        ],
+        [
+          "proxy.lastName",
+          "personal.lastName"
+        ],
+        [
+          "proxy.firstName",
+          "personal.firstName"
+        ],
+        [
+          "proxy.middleName",
+          "personal.middleName"
+        ]
       ]
     },
     "set_to_empty": {
@@ -32,12 +74,21 @@
     "table_name": "mod_courses.coursereserves_courselistings",
     "anonymize": {
       "jsonb": [
-        {
-          "instructorObjects": [
-            "name",
-            "barcode"
-          ]
-        }
+        [
+          "instructorObjects[*].userId",
+          "id"
+        ],
+        [
+          "instructorObjects[*].name",
+          "personal.firstName personal.lastName"
+        ],
+        [
+          "instructorObjects[*].barcode",
+          "barcode"
+        ],
+        [
+          "instructorObjects[*].userId"
+        ]
       ]
     }
   },
@@ -45,8 +96,18 @@
     "table_name": "mod_courses.coursereserves_instructors",
     "anonymize": {
       "jsonb": [
-        "name",
-        "barcode"
+        [
+          "userId",
+          "id"
+        ],
+        [
+          "name",
+          "personal.firstName personal.lastName"
+        ],
+        [
+          "barcode",
+          "barcode"
+        ]
       ]
     }
   }
