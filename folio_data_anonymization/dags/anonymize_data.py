@@ -5,8 +5,6 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.decorators import task
-from airflow.models import Variable
-from airflow.operators.python import get_current_context
 
 
 logger = logging.getLogger(__name__)
@@ -32,34 +30,34 @@ with DAG(
     def setup(**kwargs) -> dict:
         """
         Setup task to prepare the environment for anonymization.
+        select_tables DAG will pass:
+        conf = {"tenant": "",
+                "table_config":
+                    {"table_name": "diku_mod_users.users",
+                        "anonymize": {"jsonb": []}},
+                        "set_to_empty": {"jsonb": []}},
+                "data": (('id1', 'jsonb1'), ('id2', 'jsonb2'),...n)
+                }
         """
-        task_instance = kwargs["ti"]
         params = kwargs.get("params", {})
-        # select dag will pass json config file as dict
-        config: dict = params.get("configuration", {})
-        # select dag will pass tuples of ((id, jsonb), (id, jsonb)...)
-        data: tuple = params.get(
-            "data",
-        )
-        tenant = Variable.get("TENANT", "diku")
-        logger.info(f"Anonymizing data for {tenant}")
-        task_instance.xcom_push(key="tenant", value=tenant)
-        task_instance.xcom_push(key="data", value=data)
-        return config
+        table_config: dict = params.get("table_config", {})
+        data: list = params.get("data", ())
+        tenant = params.get("tenant", "diku")
+        schema_table_name = f"{tenant}_{table_config.get("table_name")}"
+        logger.info(f"Processing {len(data)} records from {schema_table_name}")
+        return {"config": table_config, "data": data}
 
-    @task(map_index_template="{{ table_name }}")
-    def anonymize_table(table_info: dict, **kwargs):
+    @task
+    def anonymize_row(**kwargs):
         """
-        Anonymize a specific table based on the provided configuration.
+        Anonymize the data
         """
-        context = get_current_context()
-        # context["table_name"] = table_info
-        schema_table_name = context.get("table_name")
-        task_instance = kwargs["ti"]
-        tenant = task_instance.xcom_pull(key="tenant")
-        table_name = f"{tenant}_{schema_table_name}"
-        data = task_instance.xcom_pull(key="data")
-        logger.info(f"Processing {len(data)} records from {table_name}")
+        pass
 
-    config = setup()
-    anonymize_table.expand(table_info=config)
+    @task  # sql update the data
+    def update_table():
+        pass
+
+
+payload = setup()
+anonymize_row().partial(config=payload["config"]).expand(data=payload["data"]) # type: ignore
