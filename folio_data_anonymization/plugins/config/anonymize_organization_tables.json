@@ -139,12 +139,35 @@
         [
           "edi.vendorEdiType",
           "edi_type"
+        ],
+        [
+          "accounts[*].name",
+          "account_name"
+        ],
+        [
+          "accounts[*].accountNo",
+          "bban"
+        ],
+        [
+          "accounts[*].contactInfo",
+          "account_contact_info"
+        ],
+        [
+          "accounts[*].libraryCode",
+          "org_code"
+        ],
+        [
+          "accounts[*].libraryEdiCode",
+          "org_code"
         ]
       ]
     },
     "set_to_empty": {
       "jsonb": [
-        "aliases[*].description"
+        "aliases[*].description",
+        "accounts[*].description",
+        "accounts[*].appSystemNo",
+        "accounts[*].notes"
       ]
     }
   }
