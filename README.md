@@ -83,8 +83,13 @@ Create a configmap from your dag file:
 ```
 kubectl -n $NAMESPACE create configmap my-dag --from-file=folio_data_anonymization/dags/my-dag.py
 ```
-Temporarily update airflow-values.yaml to and helm upgrade:
+Temporarily update airflow-values.yaml to the following and then helm upgrade:
 ```
+configuration:
+  core:
+    # dags_folder: "/opt/bitnami/airflow/dags/git_dags"
+    dags_folder: "/opt/bitnami/airflow/dags"
+...
 dags:
   enabled: true
   existingConfigmap: my-dag
