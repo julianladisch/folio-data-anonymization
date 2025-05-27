@@ -28,6 +28,18 @@ class Organizations(BaseProvider):
             fake_org_code.append(faker.random_uppercase_letter())
         return "".join(fake_org_code)
 
+    def account_name(self):
+        return faker.word(part_of_speech="noun")
+
+    def account_contact_info(self):
+        contact_info = faker.simple_profile()
+        contact = [
+            contact_info['name'],
+            contact_info['address'].replace('\n', ', '),
+            contact_info['mail'],
+        ]
+        return ", ".join(contact)
+
 
 class Users(BaseProvider):
 

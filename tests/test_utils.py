@@ -24,7 +24,12 @@ def test_org_fake_jsonb(configs):
     )
     assert organization["addresses"][0]["city"] != original_org["addresses"][0]["city"]
     assert organization["emails"][0]["value"] != original_org["emails"][0]["value"]
+    assert (
+        organization["accounts"][0]["contactInfo"]
+        != original_org["accounts"][0]["contactInfo"]
+    )
     assert len(organization["aliases"][0]["description"]) == 0
+    assert len(organization["accounts"][0]["description"]) == 0
 
 
 def test_user_fake_jsonb(configs):

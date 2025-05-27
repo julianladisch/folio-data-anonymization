@@ -24,7 +24,14 @@
     {"value": "Worker Sleeper", "description": "A set of workers"}
   ],
   "erpCode": "897578FEEDER",
-  "accounts": [],
+  "accounts": [
+    {
+      "name": "line",
+      "accountNo": "CMMB49945679634861",
+      "contactInfo": "Brian Brown, 043 Torres Isle, West Calvin, NE 84431, pbenson@example.com",
+      "description": "transition innovative e-tailers"
+    }
+  ],
   "contacts": [],
   "isVendor": true,
   "metadata": {
