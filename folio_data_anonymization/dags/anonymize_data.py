@@ -60,4 +60,4 @@ with DAG(
 
 
 payload = setup()
-anonymize_row().partial(config=payload["config"]).expand(data=payload["data"]) # type: ignore
+anonymize_row().partial(config=payload["config"]).expand(data=payload["data"])  # type: ignore # noqa: E501
