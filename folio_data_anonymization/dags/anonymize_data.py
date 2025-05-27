@@ -4,8 +4,11 @@ import logging
 from datetime import timedelta
 
 from airflow import DAG
-from airflow.decorators import task
+from airflow.decorators import task, task_group
+from airflow.operators.empty import EmptyOperator
 
+
+from folio_data_anonymization.plugins.utils import fake_jsonb, update_row
 
 logger = logging.getLogger(__name__)
 
@@ -48,16 +51,44 @@ with DAG(
         return {"config": table_config, "data": data}
 
     @task
-    def anonymize_row(**kwargs):
-        """
-        Anonymize the data
-        """
-        pass
+    def get_tuples(**kwargs):
+        return kwargs["payload"]["data"]
 
-    @task  # sql update the data
-    def update_table():
-        pass
+    @task_group(group_id="row_processing")
+    def row_processing_group(**kwargs):
+        config = kwargs["payload"]["config"]
+        data = kwargs["data"]
 
+        @task
+        def anonymize_row(**kwargs) -> dict:
+            """
+            Anonymize the data
+            """
+            data: tuple = kwargs["data"]
+            config: dict = kwargs["config"]
 
-payload = setup()
-anonymize_row().partial(config=payload["config"]).expand(data=payload["data"])  # type: ignore # noqa: E501
+            return {
+                "id": data[0],
+                "jsonb": fake_jsonb(data[1], config),
+            }
+
+        @task
+        def update_table(**kwargs):
+            """
+            Updates jsonb in the database with faked data
+            """
+            payload = kwargs["payload"]
+            config = kwargs["config"]
+            uuid = payload["id"]
+            jsonb = payload["jsonb"]
+            schema_table = config["table_name"]
+            update_row(id=uuid, jsonb=jsonb, schema_table=schema_table)
+
+        mod_data = anonymize_row(data=data, config=config)
+        update_table(payload=mod_data, config=config)
+
+    payload = setup()
+    all_rows = get_tuples(payload=payload)
+    row_processing_group.partial(payload=payload).expand(
+        data=all_rows
+    ) >> EmptyOperator(task_id="Finished")
