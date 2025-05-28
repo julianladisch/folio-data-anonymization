@@ -8,7 +8,10 @@ from airflow.decorators import task, task_group
 from airflow.operators.empty import EmptyOperator
 
 
-from folio_data_anonymization.plugins.utils import fake_jsonb, update_row
+try:
+    from plugins.git_plugins.utils import fake_jsonb, update_row
+except (ImportError, ModuleNotFoundError):
+    from folio_data_anonymization.plugins.utils import fake_jsonb, update_row
 
 logger = logging.getLogger(__name__)
 
