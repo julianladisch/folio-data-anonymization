@@ -4,7 +4,6 @@ import logging
 from datetime import timedelta
 
 from airflow import DAG
-from airflow.models.param import Param
 from airflow.decorators import task, task_group
 from airflow.operators.empty import EmptyOperator
 
@@ -31,18 +30,6 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["anonymize"],
-    params={
-        "tenant": Param(
-            "Choose a tenant",
-            type="string",
-            description="Choose a tenant to anonymize.",
-        ),
-        "table_config": Param(
-            {"key": "value"},
-            type="object",
-            description="Enter one row from JSON configuration file.",
-        )
-    }
 ) as dag:
 
     @task
