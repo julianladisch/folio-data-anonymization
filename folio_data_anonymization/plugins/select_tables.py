@@ -1,7 +1,7 @@
 import logging
 
 from pathlib import Path
-from psycopg2 import extensions
+from psycopg2.extensions import AsIs
 
 from airflow.models import DagBag
 from airflow.operators.python import get_current_context
@@ -33,7 +33,7 @@ def fetch_record_counts_per_table(**kwargs) -> int:
         conn_id="postgres_folio",
         database=kwargs.get("database", "okapi"),
         sql=query,
-        parameters={"schema_name": extensions.AsIs(schema_table)},
+        parameters={"schema_name": AsIs(schema_table)},
     ).execute(
         context
     )  # type: ignore
@@ -61,9 +61,9 @@ def fetch_records_batch_for_table(table, offset, limit, **kwargs) -> list:
         database=kwargs.get("database", "okapi"),
         sql=query,
         parameters={
-            "table": extensions.AsIs(table),
-            "offset": extensions.AsIs(offset),
-            "limit": extensions.AsIs(limit),
+            "table": AsIs(table),
+            "offset": AsIs(offset),
+            "limit": AsIs(limit),
         },
     ).execute(
         context
