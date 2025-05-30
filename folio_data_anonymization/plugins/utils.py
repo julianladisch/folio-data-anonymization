@@ -1,10 +1,21 @@
+import logging
+import pathlib
+
+from psycopg2.extensions import AsIs
+from typing import Union
+
 from faker import Faker
 from jsonpath_ng import parse
+
+from airflow.operators.python import get_current_context
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
 try:
     from plugins.git_plugins.providers import Organizations, Users
 except (ImportError, ModuleNotFoundError):
     from folio_data_anonymization.plugins.providers import Organizations, Users
+
+logger = logging.getLogger(__name__)
 
 faker = Faker()
 faker.add_provider(Organizations)
@@ -23,3 +34,34 @@ def fake_jsonb(jsonb: dict, config: dict) -> dict:
         expr = parse(row)
         expr.update(jsonb, "")
     return jsonb
+
+
+def update_row(**kwargs) -> Union[bool, None]:
+    row_uuid: str = kwargs['id']
+    jsonb: dict = kwargs['jsonb']
+    schema_table: str = kwargs['schema_table']
+    update_sql: str = _get_sql_file("update_jsonb.sql")
+
+    context = get_current_context()
+    try:
+        SQLExecuteQueryOperator(
+            task_id="update_data_in_row",
+            conn_id="postgres_folio",
+            database="okapi",
+            sql=update_sql,
+            parameters={
+                "schema_table": AsIs(schema_table),
+                "jsonb": AsIs(jsonb),
+                "uuid": AsIs(row_uuid),
+            },
+        ).execute(context)
+        logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed updating {schema_table} uuid {row_uuid} - {e}")
+        return None
+
+
+def _get_sql_file(file_name: str) -> str:
+    sql_path = pathlib.Path(__file__).parent / f"sql/{file_name}"
+    return sql_path.read_text()
