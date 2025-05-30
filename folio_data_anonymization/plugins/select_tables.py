@@ -113,9 +113,10 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
         for range in table_ranges["ranges"]:
             offset = range[0]
             limit = range[1]
-            
+
             logger.info(
-                f"Selecting records batch for table: {table}, offset: {offset}, limit {limit}"
+                f"Selecting records batch for table: {table}, \
+                    offset: {offset}, limit {limit}"
             )
             data = fetch_records_batch_for_table(table, offset, limit)
             execution_date = timezone.utcnow()

@@ -114,7 +114,7 @@ with DAG(
     @task(map_index_template="{{ schema_name }}")
     def record_counts_per_table(schema_table) -> int:
         context = get_current_context()
-        context["schema_name"] = schema_table   
+        context["schema_name"] = schema_table  # type: ignore
         return fetch_record_counts_per_table(schema=schema_table)
 
     @task
