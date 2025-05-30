@@ -26,6 +26,7 @@ default_args = {
 
 with DAG(
     "truncate_tables",
+    schedule=None,
     default_args=default_args,
     catchup=False,
     tags=["truncate"],

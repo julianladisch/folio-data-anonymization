@@ -62,6 +62,7 @@ def config_file_names() -> list:
 
 with DAG(
     "select_table_objects",
+    schedule=None,
     default_args=default_args,
     catchup=False,
     tags=["select"],
