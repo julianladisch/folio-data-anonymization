@@ -102,11 +102,14 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
 
     for table_ranges in tables_and_ranges:
         table = table_ranges["table"]
+        logger.info(f"TABLE: {table}")
         config = {}  # type: ignore
         conf_key = list(configuration.keys())[0]
         config_tables = configuration[conf_key]
         for schema_table in config_tables:
             for key, value in schema_table.items():
+                logger.info(f"KEY: {key}")
+                logger.info(f"VALUE: {value}")
                 if value == table:
                     config[key] = config[value]
 
