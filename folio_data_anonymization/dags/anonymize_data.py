@@ -51,7 +51,10 @@ with DAG(
         data: list = params.get("data", [])
         tenant = params.get("tenant", "diku")
         logger.info(f"Anonymizing data for tenant {tenant}")
-        logger.info(f"Begin processing {len(data)} records from {table_config.get("table_name")}")
+        logger.info(
+            f"Begin processing {len(data)} records \
+              from {table_config.get("table_name")}"
+        )
         return {"config": table_config, "data": data}
 
     @task
