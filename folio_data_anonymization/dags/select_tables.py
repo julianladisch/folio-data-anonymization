@@ -39,7 +39,6 @@ except (ImportError, ModuleNotFoundError):
 
 
 default_args = {
-    "owner": "libsys",
     "depends_on_past": False,
     "email_on_failure": True,
     "email_on_retry": False,
@@ -62,6 +61,7 @@ def config_file_names() -> list:
 
 with DAG(
     "select_table_objects",
+    schedule=None,
     default_args=default_args,
     catchup=False,
     tags=["select"],

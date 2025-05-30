@@ -16,7 +16,6 @@ except (ImportError, ModuleNotFoundError):
 
 
 default_args = {
-    "owner": "libsys",
     "depends_on_past": False,
     "email_on_failure": True,
     "email_on_retry": False,
@@ -26,6 +25,7 @@ default_args = {
 
 with DAG(
     "truncate_tables",
+    schedule=None,
     default_args=default_args,
     catchup=False,
     tags=["truncate"],
