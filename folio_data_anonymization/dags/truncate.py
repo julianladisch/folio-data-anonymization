@@ -16,7 +16,6 @@ except (ImportError, ModuleNotFoundError):
 
 
 default_args = {
-    "owner": "libsys",
     "depends_on_past": False,
     "email_on_failure": True,
     "email_on_retry": False,
