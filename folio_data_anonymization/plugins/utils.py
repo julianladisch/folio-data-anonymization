@@ -1,7 +1,8 @@
 import logging
 import pathlib
 
-import psycopg2
+from psycopg2.extensions import AsIs
+from typing import Union
 
 from faker import Faker
 from jsonpath_ng import parse
@@ -35,7 +36,7 @@ def fake_jsonb(jsonb: dict, config: dict) -> dict:
     return jsonb
 
 
-def update_row(**kwargs) -> bool:
+def update_row(**kwargs) -> Union[bool, None]:
     row_uuid: str = kwargs['id']
     jsonb: dict = kwargs['jsonb']
     schema_table: str = kwargs['schema_table']
@@ -49,16 +50,16 @@ def update_row(**kwargs) -> bool:
             database="okapi",
             sql=update_sql,
             parameters={
-                "schema_table": psycopg2.extensions.AsIs(schema_table),
-                "jsonb": psycopg2.extensions.AsIs(jsonb),
-                "uuid": psycopg2.extensions.AsIs(row_uuid),
+                "schema_table": AsIs(schema_table),
+                "jsonb": AsIs(jsonb),
+                "uuid": AsIs(row_uuid),
             },
         ).execute(context)
         logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
         return True
     except Exception as e:
         logger.error(f"Failed updating {schema_table} uuid {row_uuid} - {e}")
-        return False
+        return None
 
 
 def _get_sql_file(file_name: str) -> str:
