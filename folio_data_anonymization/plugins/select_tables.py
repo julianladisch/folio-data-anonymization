@@ -129,17 +129,17 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
             dag = dagbag.get_dag("anonymize_data")
             dag_run_id = f"manual__{execution_date.isoformat()}"
 
-            dag.create_dagrun(
-                run_id=dag_run_id,
-                execution_date=execution_date,
-                state=State.QUEUED,
-                conf={
-                    "tenant": tenant_id,
-                    "table_config": config,
-                    "data": data,
-                },
-                external_trigger=True,
-            )
+            # dag.create_dagrun(
+            #     run_id=dag_run_id,
+            #     execution_date=execution_date,
+            #     state=State.QUEUED,
+            #     conf={
+            #         "tenant": tenant_id,
+            #         "table_config": config,
+            #         "data": data,
+            #     },
+            #     external_trigger=True,
+            # )
             logger.info(f"Anonymizing {table} with OFFSET: {offset} LIMIT: {limit};")
 
     return None
