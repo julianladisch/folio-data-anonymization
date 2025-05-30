@@ -110,6 +110,7 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
                 if value == table:
                     config[key] = config[value]
 
+        logger.info(f"CONFIG: {config}")
         for range in table_ranges["ranges"]:
             offset = range[0]
             limit = range[1]
