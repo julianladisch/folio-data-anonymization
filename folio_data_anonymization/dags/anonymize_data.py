@@ -30,6 +30,7 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["anonymize"],
+    render_template_as_native_obj=True,
 ) as dag:
 
     @task
@@ -47,7 +48,7 @@ with DAG(
         """
         params = kwargs.get("params", {})
         table_config: dict = params.get("table_config", {})
-        data: list = params.get("data", ())
+        data: list = params.get("data", [])
         tenant = params.get("tenant", "diku")
         logger.info(f"Anonymizing data for tenant {tenant}")
         logger.info(f"Begin processing {len(data)} records from {table_config.get("table_name")}")
@@ -69,6 +70,7 @@ with DAG(
             """
             data: tuple = kwargs["data"]
             config: dict = kwargs["config"]
+            logger.info(f"Anonymizing record {data[0]}")
 
             return {
                 "id": data[0],

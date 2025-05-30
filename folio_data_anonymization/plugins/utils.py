@@ -54,6 +54,7 @@ def update_row(**kwargs) -> bool:
                 "uuid": psycopg2.extensions.AsIs(row_uuid),
             },
         ).execute(context)
+        logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
         return True
     except Exception as e:
         logger.error(f"Failed updating {schema_table} uuid {row_uuid} - {e}")
