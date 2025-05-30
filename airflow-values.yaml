@@ -64,6 +64,7 @@ web:
       - name: empty-dir
         mountPath: /opt/bitnami/apps
         subPath: apps
+  resourcesPreset: "xlarge"
   readinessProbe:
     enabled: true
     initialDelaySeconds: 60
@@ -107,7 +108,7 @@ scheduler:
       - name: empty-dir
         mountPath: /opt/bitnami/apps
         subPath: apps
-  resourcesPreset: "large"
+  resourcesPreset: "xlarge"
   livenessProbe:
     enabled: true
     initialDelaySeconds: 180
@@ -115,6 +116,9 @@ scheduler:
     timeoutSeconds: 60
     failureThreshold: 300
     successThreshold: 1
+  readinessProbe:
+    enabled: true
+    failureThreshold: 20
 extraDeploy:
   - apiVersion: v1
     kind: ConfigMap
