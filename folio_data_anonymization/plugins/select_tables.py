@@ -1,18 +1,29 @@
 import logging
 
 from pathlib import Path
+from psycopg2.extensions import AsIs
 
-from airflow.models import Variable
+from airflow.models import DagBag
 from airflow.operators.python import get_current_context
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from airflow.utils import timezone
+from airflow.utils.state import State
 
 logger = logging.getLogger(__name__)
 
 
-def fetch_number_of_records(**kwargs) -> int:
+def schemas_tables(config, tenant_id) -> list:
+    schemas_tables = []
+    config_key = list(config.keys())[0]
+    for schema_table in config[config_key]:
+        schemas_tables.append(f"{tenant_id}_{schema_table["table_name"]}")
+
+    return schemas_tables
+
+
+def fetch_record_counts_per_table(**kwargs) -> int:
     context = get_current_context()
-    schema_table_name = kwargs.get("schema", "")
-    tenant_schema_table = f"{Variable.get("TENANT_ID")}_{schema_table_name}"
+    schema_table = kwargs.get("schema", "")
 
     with open(sql_count_file()) as sqv:
         query = sqv.read()
@@ -22,7 +33,7 @@ def fetch_number_of_records(**kwargs) -> int:
         conn_id="postgres_folio",
         database=kwargs.get("database", "okapi"),
         sql=query,
-        parameters={"schema_name": tenant_schema_table},
+        parameters={"schema_name": AsIs(schema_table)},
     ).execute(
         context
     )  # type: ignore
@@ -32,7 +43,99 @@ def fetch_number_of_records(**kwargs) -> int:
     return int(count)
 
 
-def sql_count_file():
+def sql_count_file() -> Path:
     sql_path = Path("/opt/bitnami/airflow") / "plugins/git_plugins/sql/counts.sql"
 
     return sql_path
+
+
+def fetch_records_batch_for_table(table, offset, limit, **kwargs) -> list:
+    context = get_current_context()
+
+    with open(sql_selections_file()) as sqv:
+        query = sqv.read()
+
+    result = SQLExecuteQueryOperator(
+        task_id="postgres_count_query",
+        conn_id="postgres_folio",
+        database=kwargs.get("database", "okapi"),
+        sql=query,
+        parameters={
+            "table": AsIs(table),
+            "offset": AsIs(offset),
+            "limit": AsIs(limit),
+        },
+    ).execute(
+        context
+    )  # type: ignore
+
+    return result
+
+
+def sql_selections_file() -> Path:
+    sql_path = Path("/opt/bitnami/airflow") / "plugins/git_plugins/sql/selections.sql"
+
+    return sql_path
+
+
+def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
+    """
+    [
+        {
+            'table': 'diku_mod_organizations_storage.contacts',
+            'ranges': [(0, 38)]
+        },
+        {
+            'table': 'diku_mod_organizations_storage.interface_credentials',
+            'ranges': [(0, 74)]
+        },
+        {
+            'table': 'diku_mod_organizations_storage.interfaces',
+            'ranges': [(0, 76)]
+        },
+        {
+            'table': 'diku_mod_organizations_storage.organizations',
+            'ranges': [(0, 100), (100, 200), .. (2400, 2500), (2500, 2600)]
+        }
+    ]
+    """
+
+    for table_ranges in tables_and_ranges:
+        table = table_ranges["table"]
+        config = {}  # type: ignore
+        conf_key = list(configuration.keys())[0]
+        config_tables = configuration[conf_key]
+        for schema_table in config_tables:
+            for key, value in schema_table.items():
+                if value == table:
+                    config[key] = config[value]
+
+        for range in table_ranges["ranges"]:
+            offset = range[0]
+            limit = range[1]
+
+            logger.info(
+                f"Selecting records batch for table: {table}, \
+                    offset: {offset}, limit {limit}"
+            )
+            data = fetch_records_batch_for_table(table, offset, limit)
+            execution_date = timezone.utcnow()
+
+            dagbag = DagBag("/opt/bitnami/airflow/dags/git_dags")
+            dag = dagbag.get_dag("anonymize_data")
+            dag_run_id = f"manual__{execution_date.isoformat()}"
+
+            dag.create_dagrun(
+                run_id=dag_run_id,
+                execution_date=execution_date,
+                state=State.QUEUED,
+                conf={
+                    "tenant": tenant_id,
+                    "table_config": config,
+                    "data": data,
+                },
+                external_trigger=True,
+            )
+            logger.info(f"Anonymizing {table} with OFFSET: {offset} LIMIT: {limit};")
+
+    return None

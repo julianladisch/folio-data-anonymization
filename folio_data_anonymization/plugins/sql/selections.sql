@@ -1,0 +1,1 @@
+SELECT id, jsonb from %(table)s OFFSET %(offset)s LIMIT %(limit)s

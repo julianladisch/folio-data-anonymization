@@ -10,11 +10,11 @@ class MockSQLExecuteQueryOperator(pydantic.BaseModel):
 
 
 def mock_result_set():
-    return (
+    return [
         ('TRUNCATE'),
         ('TRUNCATE'),
         ('TRUNCATE'),
-    )
+    ]
 
 
 @pytest.fixture
