@@ -28,7 +28,11 @@ plugins:
       branch: "main"
       name: "plugins"
       path: /folio_data_anonymization/plugins
+postgresql:
+  primary:
+    resourcesPreset: "medium"
 web:
+  replicaCount: 2
   extraVolumeMounts:
   - name: requirements
     mountPath: /opt/bitnami/airflow/requirements.txt
@@ -73,6 +77,7 @@ web:
     failureThreshold: 10
     successThreshold: 1
 scheduler:
+  replicaCount: 2
   extraVolumeMounts:
   - name: requirements
     mountPath: /opt/bitnami/airflow/requirements.txt
@@ -108,7 +113,15 @@ scheduler:
       - name: empty-dir
         mountPath: /opt/bitnami/apps
         subPath: apps
-  resourcesPreset: "xlarge"
+  resources:
+    requests:
+      cpu: 2.5
+      memory: 5376Mi
+      ephemeral-storage: 50Mi
+    limits:
+      cpu: 3.0
+      memory: 6144Mi
+      ephemeral-storage: 2Gi
   livenessProbe:
     enabled: true
     initialDelaySeconds: 180
