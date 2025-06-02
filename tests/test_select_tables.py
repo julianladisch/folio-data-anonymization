@@ -58,7 +58,11 @@ def config():
         "anonymize_abc_tables": [
             {"table_name": "mod_table_a.one", "anonymize": {"jsonb": []}},
             {"table_name": "mod_table_b.two", "anonymize": {"jsonb": []}},
-            {"table_name": "mod_table_c.three", "anonymize": {"jsonb": []}},
+            {
+                "table_name": "mod_table_c.three",
+                "anonymize": {"jsonb": []},
+                "set_to_empty": {"jsonb": []},
+            },
         ]
     }
 
@@ -124,3 +128,6 @@ def test_anonymize_selections(
     assert ("Selecting records batch") in caplog.text
     assert dag_bag.called
     assert ("Anonymizing diku_mod_table_a.one with OFFSET: 0 LIMIT: 10") in caplog.text
+    assert (
+        "{'table_name': 'diku_mod_table_c.three', 'anonymize': {'jsonb': []}, 'set_to_empty': {'jsonb': []}}"  # noqa
+    ) in caplog.text

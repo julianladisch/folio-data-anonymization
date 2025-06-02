@@ -102,14 +102,10 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
 
     for table_ranges in tables_and_ranges:
         table = table_ranges["table"]
-        config = {}  # type: ignore
-        conf_key = list(configuration.keys())[0]
-        config_tables = configuration[conf_key]
-        for schema_table in config_tables:
-            for key, value in schema_table.items():
-                if value == table:
-                    config[key] = config[value]
+        logger.info(f"TABLE: {table}")
+        config = constuct_anon_config(configuration, table)
 
+        logger.info(f"CONFIG: {config}")
         for range in table_ranges["ranges"]:
             offset = range[0]
             limit = range[1]
@@ -139,3 +135,16 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
             logger.info(f"Anonymizing {table} with OFFSET: {offset} LIMIT: {limit};")
 
     return None
+
+
+def constuct_anon_config(configuration, table) -> dict:
+    config: dict = {}
+    table_no_tenant = table.split('_', 1)[1]
+    conf_key = list(configuration.keys())[0]
+    config_tables = configuration[conf_key]
+    for schema_table in config_tables:
+        if schema_table["table_name"] == table_no_tenant:
+            config = schema_table
+            config["table_name"] = table
+
+    return config
