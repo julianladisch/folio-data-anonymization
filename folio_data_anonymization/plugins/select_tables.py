@@ -137,8 +137,8 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
     return None
 
 
-def constuct_anon_config(configuration, table):
-    config = {}  # type: ignore
+def constuct_anon_config(configuration, table) -> dict:
+    config: dict = {}
     table_no_tenant = table.split('_', 1)[1]
     conf_key = list(configuration.keys())[0]
     config_tables = configuration[conf_key]
