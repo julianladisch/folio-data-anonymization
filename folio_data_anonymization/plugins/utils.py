@@ -60,7 +60,9 @@ def update_row(**kwargs) -> Union[bool, None]:
         logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
         return True
     except Exception as e:
-        raise AirflowFailException(f"Failed updating {schema_table} uuid {row_uuid} - {e}")
+        raise AirflowFailException(
+            f"Failed updating {schema_table} uuid {row_uuid} - {e}"
+        )
 
 
 def _get_sql_file(file_name: str) -> str:
