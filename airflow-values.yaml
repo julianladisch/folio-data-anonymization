@@ -115,11 +115,11 @@ scheduler:
         subPath: apps
   resources:
     requests:
-      cpu: 2.5
+      cpu: 2.7
       memory: 5376Mi
       ephemeral-storage: 50Mi
     limits:
-      cpu: 3.0
+      cpu: 3.5
       memory: 6144Mi
       ephemeral-storage: 2Gi
   livenessProbe:
