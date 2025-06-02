@@ -53,8 +53,8 @@ def update_row(**kwargs) -> Union[bool, None]:
             sql=update_sql,
             parameters={
                 "schema_table": AsIs(schema_table),
-                "jsonb": AsIs(json.dumps(jsonb)),
-                "uuid": AsIs(row_uuid),
+                "jsonb": json.dumps(jsonb),
+                "uuid": row_uuid,
             },
         ).execute(context)
         logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
