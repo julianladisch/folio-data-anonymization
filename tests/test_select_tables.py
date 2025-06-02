@@ -7,7 +7,6 @@ from folio_data_anonymization.dags.select_tables import (
 )
 
 from folio_data_anonymization.plugins.select_tables import (
-    constuct_anon_config,
     do_anonymize,
     fetch_record_counts_per_table,
     schemas_tables,
@@ -59,7 +58,11 @@ def config():
         "anonymize_abc_tables": [
             {"table_name": "mod_table_a.one", "anonymize": {"jsonb": []}},
             {"table_name": "mod_table_b.two", "anonymize": {"jsonb": []}},
-            {"table_name": "mod_table_c.three", "anonymize": {"jsonb": []}},
+            {
+                "table_name": "mod_table_c.three",
+                "anonymize": {"jsonb": []},
+                "set_to_empty": {"jsonb": []},
+            },
         ]
     }
 
@@ -117,12 +120,6 @@ def test_anonymize_selections(
         batch_size=10, counts=counts, schemas_tables=tables
     )
 
-    for table_ranges in ranges:
-        table = table_ranges["table"]
-        conf = constuct_anon_config(config, table, "diku")
-        assert len(conf.keys()) > 0
-        assert list(conf.values())[0].startswith('diku')
-
     assert ranges[0]["table"] == "diku_mod_table_a.one"
     assert ranges[0]["ranges"][0] == (0, 10)
     assert ranges[0]["ranges"][3] == (30, 40)
@@ -131,3 +128,6 @@ def test_anonymize_selections(
     assert ("Selecting records batch") in caplog.text
     assert dag_bag.called
     assert ("Anonymizing diku_mod_table_a.one with OFFSET: 0 LIMIT: 10") in caplog.text
+    assert (
+        "{'table_name': 'diku_mod_table_c.three', 'anonymize': {'jsonb': []}, 'set_to_empty': {'jsonb': []}}"  # noqa
+    ) in caplog.text
