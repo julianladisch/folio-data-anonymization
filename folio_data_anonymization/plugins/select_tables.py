@@ -103,7 +103,7 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
     for table_ranges in tables_and_ranges:
         table = table_ranges["table"]
         logger.info(f"TABLE: {table}")
-        config = constuct_anon_config(configuration, table)
+        config = constuct_anon_config(configuration, table, tenant_id)
 
         logger.info(f"CONFIG: {config}")
         for range in table_ranges["ranges"]:
@@ -137,7 +137,7 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
     return None
 
 
-def constuct_anon_config(configuration, table):
+def constuct_anon_config(configuration, table, tenant_id):
     config = {}  # type: ignore
     table_no_tenant = table.split('_', 1)[1]
     conf_key = list(configuration.keys())[0]
@@ -145,4 +145,6 @@ def constuct_anon_config(configuration, table):
     for schema_table in config_tables:
         for key, value in schema_table.items():
             if value == table_no_tenant:
-                config[key] = value
+                config[key] = f"{tenant_id}_{value}"
+
+    return config
