@@ -5,6 +5,8 @@ import pathlib
 import pydantic
 import pytest
 
+from airflow.exceptions import AirflowFailException
+
 from folio_data_anonymization.plugins.utils import fake_jsonb, update_row
 
 
@@ -99,4 +101,8 @@ def test_failed_update_row(mock_get_current_context, mocker):
     uuid = "c76983b2-3b52-11f0-a1d0-5a0f9a6cb774"
     jsonb = {"name": "The Giant Hen House"}
     schema_table = "diku_mod_organizations.organizations"
-    assert update_row(id=uuid, jsonb=jsonb, schema_table=schema_table) is None
+    with pytest.raises(
+        AirflowFailException,
+        match="Failed updating diku_mod_organizations.organizations uuid c76983b2-3b52-11f0-a1d0-5a0f9a6cb774",  # noqa
+    ):
+        update_row(id=uuid, jsonb=jsonb, schema_table=schema_table)

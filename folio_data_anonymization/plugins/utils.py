@@ -1,3 +1,4 @@
+import json
 import logging
 import pathlib
 
@@ -7,6 +8,7 @@ from typing import Union
 from faker import Faker
 from jsonpath_ng import parse
 
+from airflow.exceptions import AirflowFailException
 from airflow.operators.python import get_current_context
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
@@ -51,15 +53,16 @@ def update_row(**kwargs) -> Union[bool, None]:
             sql=update_sql,
             parameters={
                 "schema_table": AsIs(schema_table),
-                "jsonb": AsIs(jsonb),
-                "uuid": AsIs(row_uuid),
+                "jsonb": json.dumps(jsonb),
+                "uuid": row_uuid,
             },
         ).execute(context)
         logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
         return True
     except Exception as e:
-        logger.error(f"Failed updating {schema_table} uuid {row_uuid} - {e}")
-        return None
+        raise AirflowFailException(
+            f"Failed updating {schema_table} uuid {row_uuid} - {e}"
+        )
 
 
 def _get_sql_file(file_name: str) -> str:
