@@ -1,16 +1,23 @@
-executor: LocalExecutor
+executor: KubernetesExecutor
 redis:
   enabled: false
 rbac:
   create: true
 serviceAccount:
   create: true
+  automountServiceAccountToken: true
 configuration:
   core:
     dags_folder: "/opt/bitnami/airflow/dags/git_dags"
     plugins_folder: "/opt/bitnami/airflow/plugins/git_plugins"
     load_examples: "False"
     hostname_callable: "airflow.utils.net.get_host_ip_address"
+    executor: KubernetesExecutor
+    base_log_folder: "/opt/bitnami/airflow_logs"
+  kubernetes_executor:
+    in_cluster: true
+    namespace: folio-da-dev
+    pod_template_file: "/opt/bitnami/airflow/config/pod_template.yaml"
 auth:
   username: airflow
   existingSecret: airflow-user
@@ -28,11 +35,13 @@ plugins:
       branch: "main"
       name: "plugins"
       path: /folio_data_anonymization/plugins
+setupDBJob:
+  resourcesPreset: "large"
 postgresql:
   primary:
-    resourcesPreset: "medium"
-web:
-  replicaCount: 2
+    resourcesPreset: "xlarge"
+worker:
+  automountServiceAccountToken: true
   extraVolumeMounts:
   - name: requirements
     mountPath: /opt/bitnami/airflow/requirements.txt
@@ -40,10 +49,58 @@ web:
   - name: empty-dir
     mountPath: /opt/bitnami/apps
     subPath: apps
+  - name: airflow-logs
+    mountPath: "/opt/bitnami/airflow_logs"
   extraVolumes:
-    - name: requirements
-      configMap:
-        name: airflow-requirements
+  - name: requirements
+    configMap:
+      name: airflow-requirements
+  - name: airflow-logs
+    persistentVolumeClaim:
+      claimName: airflow-logs
+  extraEnvVars:
+  - name: PYTHONPATH
+    value: "/opt/bitnami/airflow:/opt/bitnami/apps"
+  initContainers:
+  - name: install-dependencies
+    image: "{{ include \"airflow.image\" . }}"
+    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+    env:
+    - name: PYTHONPATH
+      value: "/opt/bitnami/airflow:/opt/bitnami/apps"
+    command:
+      - /bin/bash
+    args:
+      - -ec
+      - |
+        cd /opt/bitnami/airflow
+        pip install --no-cache-dir --target /opt/bitnami/apps -r requirements.txt
+    volumeMounts:
+      - name: requirements
+        mountPath: /opt/bitnami/airflow/requirements.txt
+        subPath: requirements.txt
+      - name: empty-dir
+        mountPath: /opt/bitnami/apps
+        subPath: apps
+web:
+  replicaCount: 1
+  automountServiceAccountToken: true
+  extraVolumeMounts:
+  - name: requirements
+    mountPath: /opt/bitnami/airflow/requirements.txt
+    subPath: requirements.txt
+  - name: empty-dir
+    mountPath: /opt/bitnami/apps
+    subPath: apps
+  - name: airflow-logs
+    mountPath: "/opt/bitnami/airflow_logs"
+  extraVolumes:
+  - name: requirements
+    configMap:
+      name: airflow-requirements
+  - name: airflow-logs
+    persistentVolumeClaim:
+      claimName: airflow-logs
   extraEnvVars:
     - name: PYTHONPATH
       value: "/opt/bitnami/airflow:/opt/bitnami/apps"
@@ -77,7 +134,8 @@ web:
     failureThreshold: 10
     successThreshold: 1
 scheduler:
-  replicaCount: 2
+  replicaCount: 1
+  automountServiceAccountToken: true
   extraVolumeMounts:
   - name: requirements
     mountPath: /opt/bitnami/airflow/requirements.txt
@@ -85,10 +143,15 @@ scheduler:
   - name: empty-dir
     mountPath: /opt/bitnami/apps
     subPath: apps
+  - name: airflow-logs
+    mountPath: "/opt/bitnami/airflow_logs"
   extraVolumes:
     - name: requirements
       configMap:
         name: airflow-requirements
+    - name: airflow-logs
+      persistentVolumeClaim:
+        claimName: airflow-logs
   extraEnvVars:
     - name: PYTHONPATH
       value: "/opt/bitnami/airflow:/opt/bitnami/apps"
