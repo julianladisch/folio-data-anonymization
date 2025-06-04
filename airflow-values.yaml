@@ -36,10 +36,10 @@ plugins:
       name: "plugins"
       path: /folio_data_anonymization/plugins
 setupDBJob:
-  resourcesPreset: "large"
+  resourcesPreset: "medium"
 postgresql:
   primary:
-    resourcesPreset: "xlarge"
+    resourcesPreset: "medium"
 worker:
   automountServiceAccountToken: true
   extraVolumeMounts:
