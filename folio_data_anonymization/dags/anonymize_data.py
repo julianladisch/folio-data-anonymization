@@ -64,11 +64,11 @@ with DAG(
 
     @task
     def anonymize_row_update_table(**kwargs):
-        data: tuple = kwargs["payload"]["data"]
+        data: tuple = kwargs["data"]
         config: dict = kwargs["payload"]["config"]
         logger.info(f"Anonymizing record {data[0]}")
 
-        logger.info(f"DATA: {data}")
+        logger.info(f"Processing data: {data}")
         fake_json = fake_jsonb(data[1], config)
         update_row(id=data[0], jsonb=fake_json, schema_table=config["table_name"])
 
