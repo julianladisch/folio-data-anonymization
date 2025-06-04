@@ -23,7 +23,7 @@
   "aliases": [
     {"value": "Worker Sleeper", "description": "A set of workers"}
   ],
-  "erpCode": "897578FEEDER",
+  "erpCode": "897578",
   "accounts": [
     {
       "name": "line",

@@ -141,6 +141,10 @@
           "edi_type"
         ],
         [
+          "erpCode",
+          "bban"
+        ],
+        [
           "accounts[*].name",
           "account_name"
         ],
