@@ -5,32 +5,54 @@ import pathlib
 import pydantic
 import pytest
 
+from psycopg2 import Error
+
 from airflow.exceptions import AirflowFailException
+from airflow.models import Connection
 
-from folio_data_anonymization.plugins.utils import fake_jsonb, update_row
-
-
-class MockSQLExecuteQueryOperator(pydantic.BaseModel):
-    def execute(self, sql):
-        return []
+from folio_data_anonymization.plugins.utils import fake_jsonb, update_row, SQLPool
+from folio_data_anonymization.plugins.sql_pool import SimpleConnectionPool
 
 
-class MockFailedExecuteQueryOperator(pydantic.BaseModel):
-    def execute(self, sql):
-        raise ValueError(f"Cannot execute {sql}")
+class MockCursor(pydantic.BaseModel):
+    def fetchall(self):
+        return mock_result_set()
+
+    def execute(self, sql_stmt, params):
+        if str(params["table"]) == "diku_mod_organizations.foo":
+            raise Error()
+        self
 
 
-@pytest.fixture
-def mock_get_current_context(monkeypatch, mocker):
-    def _context():
-        context = mocker.stub(name="context")
-        context.get = lambda *args: {}
-        return context
+class MockConnection(pydantic.BaseModel):
+    def cursor(self):
+        return MockCursor()
 
-    monkeypatch.setattr(
-        'folio_data_anonymization.plugins.utils.get_current_context',
-        _context,
-    )
+
+class MockPool(pydantic.BaseModel):
+    def pool(self):
+        return self
+
+    def getconn(self):
+        return MockConnection()
+
+    def cursor(self):
+        return MockCursor()
+
+
+class MockAirflowConnection(pydantic.BaseModel):
+    def get_connection_from_secrets(self):
+        return Connection(  # noqa
+            conn_id="postgres-folio",
+            conn_type="postgres",
+            host="example.com",
+            password="pass",
+            port=5432,
+        )
+
+
+def mock_result_set():
+    return []
 
 
 def test_org_fake_jsonb(configs):
@@ -82,27 +104,27 @@ def test_user_fake_jsonb(configs):
     assert len(user.get('customFields')) == 0
 
 
-def test_update_row(mock_get_current_context, mocker):
-    mocker.patch(
-        'folio_data_anonymization.plugins.utils.SQLExecuteQueryOperator',
-        return_value=MockSQLExecuteQueryOperator(),
-    )
+def test_update_row(mocker):
+    mocker.patch.object(SQLPool, "connection", MockAirflowConnection)
+    mocker.patch.object(SQLPool, "pool", MockPool)
+    mocker.patch.object(SimpleConnectionPool, "getconn", MockConnection)
+
     uuid = "f9d5a80e-3b51-11f0-a1d0-5a0f9a6cb774"
     jsonb = {"name": "George Fox"}
     schema_table = "diku_mod_users.users"
     assert update_row(id=uuid, jsonb=jsonb, schema_table=schema_table)
 
 
-def test_failed_update_row(mock_get_current_context, mocker):
-    mocker.patch(
-        'folio_data_anonymization.plugins.utils.SQLExecuteQueryOperator',
-        return_value=MockFailedExecuteQueryOperator(),
-    )
+def test_failed_update_row(mocker):
+    mocker.patch.object(SQLPool, "connection", MockAirflowConnection)
+    mocker.patch.object(SQLPool, "pool", MockPool)
+    mocker.patch.object(SimpleConnectionPool, "getconn", MockConnection)
+
     uuid = "c76983b2-3b52-11f0-a1d0-5a0f9a6cb774"
     jsonb = {"name": "The Giant Hen House"}
-    schema_table = "diku_mod_organizations.organizations"
+    schema_table = "diku_mod_organizations.foo"
     with pytest.raises(
         AirflowFailException,
-        match="Failed updating diku_mod_organizations.organizations uuid c76983b2-3b52-11f0-a1d0-5a0f9a6cb774",  # noqa
+        match="Failed updating diku_mod_organizations.foo uuid c76983b2-3b52-11f0-a1d0-5a0f9a6cb774",  # noqa
     ):
         update_row(id=uuid, jsonb=jsonb, schema_table=schema_table)

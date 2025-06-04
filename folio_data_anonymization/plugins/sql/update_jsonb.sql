@@ -1,1 +1,0 @@
-UPDATE %(schema_table)s SET jsonb=%(jsonb)s WHERE id=%(uuid)s;

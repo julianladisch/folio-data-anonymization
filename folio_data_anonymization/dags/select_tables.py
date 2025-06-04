@@ -67,7 +67,7 @@ with DAG(
     tags=["select"],
     params={
         "batch_size": Param(
-            500,
+            250,
             type="integer",
             description="Number of table records to anonymize for a given run.",
         ),

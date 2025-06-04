@@ -1,21 +1,24 @@
 import json
 import logging
-import pathlib
 
 from psycopg2.extensions import AsIs
+from psycopg2 import Error
 from typing import Union
 
 from faker import Faker
 from jsonpath_ng import parse
 
 from airflow.exceptions import AirflowFailException
-from airflow.operators.python import get_current_context
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
 try:
     from plugins.git_plugins.providers import Organizations, Users
 except (ImportError, ModuleNotFoundError):
     from folio_data_anonymization.plugins.providers import Organizations, Users
+
+try:
+    from plugins.git_plugins.sql_pool import SQLPool
+except (ImportError, ModuleNotFoundError):
+    from folio_data_anonymization.plugins.sql_pool import SQLPool
 
 logger = logging.getLogger(__name__)
 
@@ -42,29 +45,21 @@ def update_row(**kwargs) -> Union[bool, None]:
     row_uuid: str = kwargs['id']
     jsonb: dict = kwargs['jsonb']
     schema_table: str = kwargs['schema_table']
-    update_sql: str = _get_sql_file("update_jsonb.sql")
 
-    context = get_current_context()
+    connection_pool = SQLPool().pool()
+    connection = connection_pool.getconn()
     try:
-        SQLExecuteQueryOperator(
-            task_id="update_data_in_row",
-            conn_id="postgres_folio",
-            database="okapi",
-            sql=update_sql,
-            parameters={
-                "schema_table": AsIs(schema_table),
-                "jsonb": json.dumps(jsonb),
-                "uuid": row_uuid,
-            },
-        ).execute(context)
+        cursor = connection.cursor()  # type: ignore
+        sql = "UPDATE %(table)s SET jsonb=%(jsonb)s WHERE id=%(id)s"
+        params = {
+            "table": AsIs(schema_table),
+            "jsonb": json.dumps(jsonb),
+            "id": row_uuid,
+        }
+        cursor.execute(sql, params)
         logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
         return True
-    except Exception as e:
+    except Error as e:
         raise AirflowFailException(
             f"Failed updating {schema_table} uuid {row_uuid} - {e}"
         )
-
-
-def _get_sql_file(file_name: str) -> str:
-    sql_path = pathlib.Path(__file__).parent / f"sql/{file_name}"
-    return sql_path.read_text()
