@@ -68,6 +68,7 @@ with DAG(
         config: dict = kwargs["payload"]["config"]
         logger.info(f"Anonymizing record {data[0]}")
 
+        logger.info(f"DATA: {data}")
         fake_json = fake_jsonb(data[1], config)
         update_row(id=data[0], jsonb=fake_json, schema_table=config["table_name"])
 
