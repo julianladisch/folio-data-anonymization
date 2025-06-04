@@ -1,5 +1,4 @@
 """Anonymize Tables in FOLIO based on Configuration File."""
-import json
 import logging
 from datetime import timedelta
 
@@ -70,7 +69,7 @@ with DAG(
 
         fake_json = fake_jsonb(data[1], config)
         update_row(
-            id=data[0], jsonb=json.dumps(fake_json), schema_table=config["table_name"]
+            id=data[0], jsonb=fake_json, schema_table=config["table_name"]
         )
 
     payload = prepare_payload()

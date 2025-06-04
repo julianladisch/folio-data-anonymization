@@ -1,3 +1,4 @@
+import json
 import logging
 
 from psycopg2.extensions import AsIs
@@ -42,8 +43,10 @@ def fake_jsonb(jsonb: dict, config: dict) -> dict:
 
 def update_row(**kwargs) -> Union[bool, None]:
     row_uuid: str = kwargs['id']
-    jsonb: str = kwargs['jsonb']
+    jsonb: dict = kwargs['jsonb']
     schema_table: str = kwargs['schema_table']
+    
+    json_obj = json.dumps(jsonb)
 
     connection_pool = SQLPool().pool()
     connection = connection_pool.getconn()
@@ -52,7 +55,7 @@ def update_row(**kwargs) -> Union[bool, None]:
         sql = "UPDATE %(table)s SET jsonb=%(jsonb)s WHERE id=%(id)s"
         params = {
             "table": AsIs(schema_table),
-            "jsonb": jsonb,
+            "jsonb": json_obj,
             "id": row_uuid,
         }
         cursor.execute(sql, params)
