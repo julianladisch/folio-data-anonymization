@@ -45,7 +45,7 @@ def update_row(**kwargs) -> Union[bool, None]:
     row_uuid: str = kwargs['id']
     jsonb: dict = kwargs['jsonb']
     schema_table: str = kwargs['schema_table']
-    
+
     json_obj = json.dumps(jsonb)
 
     connection_pool = SQLPool().pool()
