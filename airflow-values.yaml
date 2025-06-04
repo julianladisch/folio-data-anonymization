@@ -32,7 +32,7 @@ plugins:
   enabled: true
   repositories:
     - repository: "https://github.com/folio-org/folio-data-anonymization.git"
-      branch: "main "
+      branch: "main"
       name: "plugins"
       path: /folio_data_anonymization/plugins
 setupDBJob:
