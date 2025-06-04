@@ -32,7 +32,7 @@ plugins:
   enabled: true
   repositories:
     - repository: "https://github.com/folio-org/folio-data-anonymization.git"
-      branch: "main"
+      branch: "main "
       name: "plugins"
       path: /folio_data_anonymization/plugins
 setupDBJob:
@@ -178,12 +178,12 @@ scheduler:
         subPath: apps
   resources:
     requests:
-      cpu: 2.7
-      memory: 5376Mi
+      cpu: 2.0
+      memory: 2048Mi
       ephemeral-storage: 50Mi
     limits:
-      cpu: 3.5
-      memory: 6144Mi
+      cpu: 4.0
+      memory: 3072Mi
       ephemeral-storage: 2Gi
   livenessProbe:
     enabled: true
