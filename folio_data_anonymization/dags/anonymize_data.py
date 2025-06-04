@@ -64,8 +64,8 @@ with DAG(
 
     @task
     def anonymize_row_update_table(**kwargs):
-        data: tuple = kwargs["data"]
-        config: dict = kwargs["config"]
+        data: tuple = kwargs["payload"]["data"]
+        config: dict = kwargs["payload"]["config"]
         update = {
             "id": data[0],
             "jsonb": fake_jsonb(data[1], config),
