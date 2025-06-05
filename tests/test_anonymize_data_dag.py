@@ -1,11 +1,61 @@
 import json
 import pathlib
+import pydantic
 import pytest
 
+from psycopg2 import Error
+
+from airflow.models import Connection
+
+from folio_data_anonymization.plugins.utils import SQLPool
+from folio_data_anonymization.plugins.sql_pool import SimpleConnectionPool
+
 from folio_data_anonymization.dags.anonymize_data import (
+    anonymize_row_update_table,
     prepare_payload,
     get_tuples,
 )
+
+
+class MockCursor(pydantic.BaseModel):
+    def fetchall(self):
+        return mock_result_set()
+
+    def execute(self, sql_stmt, params):
+        if str(params["table"]) == "diku_mod_organizations.foo":
+            raise Error()
+        self
+
+
+class MockConnection(pydantic.BaseModel):
+    def cursor(self):
+        return MockCursor()
+
+
+class MockPool(pydantic.BaseModel):
+    def pool(self):
+        return self
+
+    def getconn(self):
+        return MockConnection()
+
+    def cursor(self):
+        return MockCursor()
+
+
+class MockAirflowConnection(pydantic.BaseModel):
+    def get_connection_from_secrets(self):
+        return Connection(  # noqa
+            conn_id="postgres-folio",
+            conn_type="postgres",
+            host="example.com",
+            password="pass",
+            port=5432,
+        )
+
+
+def mock_result_set():
+    return []
 
 
 @pytest.fixture
@@ -42,3 +92,15 @@ def test_prepare_payload(mocker, mock_dag_run, caplog):
     data_tuples = get_tuples.function(payload=payload)
     assert data_tuples[0][0] == "925329d6-3caa-4ae0-bea8-705d70b7a51c"
     assert isinstance(json.loads(payload["data"][0][1]), dict)
+
+
+def test_anonymize_row_update_table(mocker, mock_dag_run, mock_data, caplog):
+    mocker.patch("folio_data_anonymization.plugins.utils.update_row", return_value=True)
+    mocker.patch.object(SQLPool, "connection", MockAirflowConnection)
+    mocker.patch.object(SQLPool, "pool", MockPool)
+    mocker.patch.object(SimpleConnectionPool, "getconn", MockConnection)
+
+    payload = prepare_payload.function(params=mock_dag_run.conf)
+
+    anonymize_row_update_table.function(data=mock_data[0], payload=payload)
+    assert "stanford" not in caplog.text
