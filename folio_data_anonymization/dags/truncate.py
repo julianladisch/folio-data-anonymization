@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.decorators import task
 
 try:
-    from plugins.git_plugins.truncate import (
+    from plugins.git_plugins.truncate.truncate import (
         tables_list,
         truncate_db_objects,
     )
