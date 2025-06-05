@@ -108,7 +108,7 @@ def do_anonymize(tables_and_ranges, configuration, tenant_id) -> None:
         logger.info(f"CONFIG: {config}")
         for range in table_ranges["ranges"]:
             offset = range[0]
-            limit = range[1]
+            limit = range[1] - offset
 
             logger.info(
                 f"Selecting records batch for table: {table}, \
