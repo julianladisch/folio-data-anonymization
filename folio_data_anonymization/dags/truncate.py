@@ -9,7 +9,7 @@ try:
         truncate_db_objects,
     )
 except (ImportError, ModuleNotFoundError):
-    from folio_data_anonymization.plugins.truncate import (
+    from folio_data_anonymization.plugins.truncate.truncate import (
         tables_list,
         truncate_db_objects,
     )
