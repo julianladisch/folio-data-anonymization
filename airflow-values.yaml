@@ -135,8 +135,8 @@ web:
   resourcesPreset: "xlarge"
   readinessProbe:
     enabled: true
-    initialDelaySeconds: 60
-    periodSeconds: 10
+    initialDelaySeconds: 35
+    periodSeconds: 15
     timeoutSeconds: 5
     failureThreshold: 10
     successThreshold: 1
