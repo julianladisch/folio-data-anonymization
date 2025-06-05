@@ -3,7 +3,7 @@ import pathlib
 import pytest
 
 from folio_data_anonymization.dags.anonymize_data import (
-    setup,
+    prepare_payload,
     get_tuples,
 )
 
@@ -35,8 +35,8 @@ def mock_dag_run(mocker, configs, mock_data):
     return dag_run
 
 
-def test_setup(mocker, mock_dag_run, caplog):
-    payload = setup.function(params=mock_dag_run.conf)
+def test_prepare_payload(mocker, mock_dag_run, caplog):
+    payload = prepare_payload.function(params=mock_dag_run.conf)
     assert payload["config"]["table_name"] == "diku_mod_users.users"
     assert "Begin processing 1 records from diku_mod_users.users" in caplog.text
     data_tuples = get_tuples.function(payload=payload)

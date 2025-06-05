@@ -46,6 +46,8 @@ def update_row(**kwargs) -> Union[bool, None]:
     jsonb: dict = kwargs['jsonb']
     schema_table: str = kwargs['schema_table']
 
+    json_obj = json.dumps(jsonb)
+
     connection_pool = SQLPool().pool()
     connection = connection_pool.getconn()
     try:
@@ -53,7 +55,7 @@ def update_row(**kwargs) -> Union[bool, None]:
         sql = "UPDATE %(table)s SET jsonb=%(jsonb)s WHERE id=%(id)s"
         params = {
             "table": AsIs(schema_table),
-            "jsonb": json.dumps(jsonb),
+            "jsonb": json_obj,
             "id": row_uuid,
         }
         cursor.execute(sql, params)

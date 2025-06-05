@@ -61,6 +61,7 @@ worker:
   extraEnvVars:
   - name: PYTHONPATH
     value: "/opt/bitnami/airflow:/opt/bitnami/apps"
+  resourcesPreset: "xlarge"
   initContainers:
   - name: install-dependencies
     image: "{{ include \"airflow.image\" . }}"
@@ -178,7 +179,7 @@ scheduler:
         subPath: apps
   resources:
     requests:
-      cpu: 2.7
+      cpu: 2.5
       memory: 5376Mi
       ephemeral-storage: 50Mi
     limits:
