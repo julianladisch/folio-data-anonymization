@@ -15,11 +15,6 @@ try:
 except (ImportError, ModuleNotFoundError):
     from folio_data_anonymization.plugins.providers import Organizations, Users
 
-try:
-    from plugins.git_plugins.sql_pool import SQLPool
-except (ImportError, ModuleNotFoundError):
-    from folio_data_anonymization.plugins.sql_pool import SQLPool
-
 logger = logging.getLogger(__name__)
 
 faker = Faker()
@@ -45,11 +40,10 @@ def update_row(**kwargs) -> Union[bool, None]:
     row_uuid: str = kwargs['id']
     jsonb: dict = kwargs['jsonb']
     schema_table: str = kwargs['schema_table']
-
+    connection = kwargs.get("connection")
     json_obj = json.dumps(jsonb)
 
-    connection_pool = SQLPool().pool()
-    connection = connection_pool.getconn()
+    logger.info(f"Updating: {json_obj}")
     try:
         cursor = connection.cursor()  # type: ignore
         sql = "UPDATE %(table)s SET jsonb=%(jsonb)s WHERE id=%(id)s"
@@ -59,6 +53,7 @@ def update_row(**kwargs) -> Union[bool, None]:
             "id": row_uuid,
         }
         cursor.execute(sql, params)
+        connection.commit()  # type: ignore
         logger.info(f"Successfully updated {schema_table} uuid {row_uuid}")
         return True
     except Error as e:
