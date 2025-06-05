@@ -61,6 +61,7 @@ worker:
   extraEnvVars:
   - name: PYTHONPATH
     value: "/opt/bitnami/airflow:/opt/bitnami/apps"
+  resourcesPreset: "xlarge"
   initContainers:
   - name: install-dependencies
     image: "{{ include \"airflow.image\" . }}"
