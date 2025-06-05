@@ -62,6 +62,12 @@ worker:
   - name: PYTHONPATH
     value: "/opt/bitnami/airflow:/opt/bitnami/apps"
   resourcesPreset: "xlarge"
+  readinessProbe:
+    failureThreshold: 6
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 5
   initContainers:
   - name: install-dependencies
     image: "{{ include \"airflow.image\" . }}"
