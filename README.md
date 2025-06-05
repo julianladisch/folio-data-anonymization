@@ -60,6 +60,9 @@ envsubst < airflow-values.yaml > ns-airflow-values.yaml
 helm -n $NAMESPACE install --version 22.7.3 -f ns-airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
 
+Note: in pv-volume.yaml you must use a storageClass that supports ReadWriteMany. If you do not specify a storageClassName, the default storageClass for your cluster will be used.
+
+
 To upgrade airflow release, do:
 ```
 envsubst < airflow-values.yaml > ns-airflow-values.yaml

@@ -35,102 +35,88 @@ plugins:
       branch: "main"
       name: "plugins"
       path: /folio_data_anonymization/plugins
-setupDBJob:
-  resourcesPreset: "medium"
 postgresql:
   primary:
     resourcesPreset: "medium"
+setupDBJob:
+  resourcesPreset: "medium"
+  extraVolumes:
+  - name: airflow-dependencies
+    persistentVolumeClaim:
+      claimName: airflow-dependencies
+  - name: airflow-requirements
+    configMap:
+      name: airflow-requirements
+  extraVolumeMounts:
+  - name: airflow-requirements
+    mountPath: /opt/bitnami/airflow/requirements.txt
+    subPath: requirements.txt
+  - name: airflow-dependencies
+    mountPath: /opt/bitnami/airflow/lib
+  extraEnvVars:
+  - name: PYTHONPATH
+    value: "/opt/bitnami/airflow:/opt/bitnami/airflow/lib"
+  initContainers:
+  - name: install-dependencies
+    image: "{{ include \"airflow.image\" . }}"
+    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+    env:
+    - name: PYTHONPATH
+      value: "/opt/bitnami/airflow:/opt/bitnami/airflow/lib"
+    command:
+      - /bin/bash
+    args:
+      - -ec
+      - |
+        cd /opt/bitnami/airflow
+        pip install --no-cache-dir --target /opt/bitnami/airflow/lib -r requirements.txt
+    volumeMounts:
+      - name: airflow-requirements
+        mountPath: /opt/bitnami/airflow/requirements.txt
+        subPath: requirements.txt
+      - name: airflow-dependencies
+        mountPath: /opt/bitnami/airflow/lib
 worker:
   automountServiceAccountToken: true
   extraVolumeMounts:
-  - name: requirements
-    mountPath: /opt/bitnami/airflow/requirements.txt
-    subPath: requirements.txt
-  - name: empty-dir
-    mountPath: /opt/bitnami/apps
-    subPath: apps
+  - name: airflow-dependencies
+    mountPath: "/opt/bitnami/airflow/lib"
   - name: airflow-logs
     mountPath: "/opt/bitnami/airflow_logs"
   extraVolumes:
-  - name: requirements
-    configMap:
-      name: airflow-requirements
+  - name: airflow-dependencies
+    persistentVolumeClaim:
+      claimName: airflow-dependencies
   - name: airflow-logs
     persistentVolumeClaim:
       claimName: airflow-logs
   extraEnvVars:
   - name: PYTHONPATH
-    value: "/opt/bitnami/airflow:/opt/bitnami/apps"
-  resourcesPreset: "xlarge"
-  initContainers:
-  - name: install-dependencies
-    image: "{{ include \"airflow.image\" . }}"
-    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-    env:
-    - name: PYTHONPATH
-      value: "/opt/bitnami/airflow:/opt/bitnami/apps"
-    command:
-      - /bin/bash
-    args:
-      - -ec
-      - |
-        cd /opt/bitnami/airflow
-        pip install --no-cache-dir --target /opt/bitnami/apps -r requirements.txt
-    volumeMounts:
-      - name: requirements
-        mountPath: /opt/bitnami/airflow/requirements.txt
-        subPath: requirements.txt
-      - name: empty-dir
-        mountPath: /opt/bitnami/apps
-        subPath: apps
+    value: "/opt/bitnami/airflow:/opt/bitnami/airflow/lib"
+  resourcesPreset: "large"
 web:
   replicaCount: 1
   automountServiceAccountToken: true
   extraVolumeMounts:
-  - name: requirements
-    mountPath: /opt/bitnami/airflow/requirements.txt
-    subPath: requirements.txt
-  - name: empty-dir
-    mountPath: /opt/bitnami/apps
-    subPath: apps
+  - name: airflow-dependencies
+    mountPath: "/opt/bitnami/airflow/lib"
   - name: airflow-logs
     mountPath: "/opt/bitnami/airflow_logs"
   extraVolumes:
-  - name: requirements
-    configMap:
-      name: airflow-requirements
+  - name: airflow-dependencies
+    persistentVolumeClaim:
+      claimName: airflow-dependencies
   - name: airflow-logs
     persistentVolumeClaim:
       claimName: airflow-logs
   extraEnvVars:
     - name: PYTHONPATH
-      value: "/opt/bitnami/airflow:/opt/bitnami/apps"
-  initContainers:
-  - name: install-dependencies
-    image: "{{ include \"airflow.image\" . }}"
-    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-    env:
-    - name: PYTHONPATH
-      value: "/opt/bitnami/airflow:/opt/bitnami/apps"
-    command:
-      - /bin/bash
-    args:
-      - -ec
-      - |
-        cd /opt/bitnami/airflow
-        pip install --no-cache-dir --target /opt/bitnami/apps -r requirements.txt
-    volumeMounts:
-      - name: requirements
-        mountPath: /opt/bitnami/airflow/requirements.txt
-        subPath: requirements.txt
-      - name: empty-dir
-        mountPath: /opt/bitnami/apps
-        subPath: apps
+      value: "/opt/bitnami/airflow:/opt/bitnami/airflow/lib"
   resourcesPreset: "xlarge"
   readinessProbe:
     enabled: true
-    initialDelaySeconds: 60
-    periodSeconds: 10
+    initialDelaySeconds: 35
+    periodSeconds: 15
     timeoutSeconds: 5
     failureThreshold: 10
     successThreshold: 1
@@ -138,45 +124,20 @@ scheduler:
   replicaCount: 1
   automountServiceAccountToken: true
   extraVolumeMounts:
-  - name: requirements
-    mountPath: /opt/bitnami/airflow/requirements.txt
-    subPath: requirements.txt
-  - name: empty-dir
-    mountPath: /opt/bitnami/apps
-    subPath: apps
+  - name: airflow-dependencies
+    mountPath: "/opt/bitnami/airflow/lib"
   - name: airflow-logs
     mountPath: "/opt/bitnami/airflow_logs"
   extraVolumes:
-    - name: requirements
-      configMap:
-        name: airflow-requirements
+    - name: airflow-dependencies
+      persistentVolumeClaim:
+        claimName: airflow-dependencies
     - name: airflow-logs
       persistentVolumeClaim:
         claimName: airflow-logs
   extraEnvVars:
     - name: PYTHONPATH
-      value: "/opt/bitnami/airflow:/opt/bitnami/apps"
-  initContainers:
-  - name: install-dependencies
-    image: "{{ include \"airflow.image\" . }}"
-    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-    env:
-    - name: PYTHONPATH
-      value: "/opt/bitnami/airflow:/opt/bitnami/apps"
-    command:
-      - /bin/bash
-    args:
-      - -ec
-      - |
-        cd /opt/bitnami/airflow
-        pip install --no-cache-dir --target /opt/bitnami/apps -r requirements.txt
-    volumeMounts:
-      - name: requirements
-        mountPath: /opt/bitnami/airflow/requirements.txt
-        subPath: requirements.txt
-      - name: empty-dir
-        mountPath: /opt/bitnami/apps
-        subPath: apps
+      value: "/opt/bitnami/airflow:/opt/bitnami/airflow/lib"
   resources:
     requests:
       cpu: 2.5
