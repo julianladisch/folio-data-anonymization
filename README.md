@@ -8,31 +8,12 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 ## Introduction
 Folio Data Anonymization is a service that anonymizes or masks patron data in library records to ensure privacy protection.
 
-## Environment Variables 
-After cloning this repository, create a local .env file and add the following variables:
-
-```bash
-export PGHOST="localhost"
-export PGPORT=5432
-export PGUSER="user"
-export PGPASSWORD="password"
-export PGDATABASE="dbname"
-export TENANT="diku"
-```
-
 ## Dependency Management and Packaging
 To install the dependencies, run:
 - `pipx install poetry` or `pip install -r requirements.txt`
 - `poetry install`
 
-## Running
-- `source .env`
-- `poetry run`
-
 ## Tests
-To run tests, install postgresql (Mac OSX) or libpq (Ubuntu):
-`brew install postgresql`
-`sudo apt-get install libpq-dev`
 Running the tests:
 - `poetry run pytest tests`
 
@@ -61,7 +42,11 @@ poetry run python3
 echo -n $decoded_fernet_key | base64
 ```
 
-Then apply it using `kubectl -n $namespace apply -f secret.yaml`
+Then apply it using 
+```
+export NAMESPACE=<my-namespace>
+kubectl -n $NAMESPACE apply -f secret.yaml`
+```
 
 ## Install Apache Airflow in a Kubernetes cluster 
 #### Local development:
@@ -69,13 +54,17 @@ With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/
 
 Then, using Helm:
 ```
-helm --namespace $NAMESPACE install --version 22.7.3 -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
+export NAMESPACE=<my-namespace>
+kubectl -n $NAMESPACE apply -f pv-volume.yaml
+envsubst < airflow-values.yaml > ns-airflow-values.yaml
+helm -n $NAMESPACE install --version 22.7.3 -f ns-airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
 
 To upgrade airflow release, do:
 ```
-export PASSWORD=$(kubectl get secret --namespace $NAMESPACE airflow-postgresql -o jsonpath="{.data.password}" | base64 -d)
-helm --namespace $NAMESPACE upgrade --install --version 22.7.3 --set global.postgresql.auth.password=$PASSWORD -f airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
+envsubst < airflow-values.yaml > ns-airflow-values.yaml
+export PASSWORD=$(kubectl get secret -n $NAMESPACE airflow-postgresql -o jsonpath="{.data.password}" | base64 -d)
+helm -n $NAMESPACE upgrade --install --version 22.7.3 --set global.postgresql.auth.password=$PASSWORD -f ns-airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
 
 Test a DAG using a ConfigMap. 

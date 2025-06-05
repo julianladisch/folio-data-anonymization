@@ -2,7 +2,7 @@
 name = "folio-data-anonymization"
 version = "0.1.0"
 description = "Anonymize folio data"
-authors = ["Shelley Doljack <sdoljack@stanford.edu>"]
+authors = ["Jeremy Nelson <jpnelson@stanford.edu>", "Joshua Greben <jgreben@stanford.edu>", "Shelley Doljack <sdoljack@stanford.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -20,8 +20,6 @@ mypy = "^1.13.0"
 flake8 = "^7.1.1"
 pytest = "^8.3.4"
 pytest-mock = "^3.14.0"
-pytest-env = "^1.1.5"
-pytest-postgresql = "^6.1.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -41,15 +39,3 @@ explicit_package_bases = true
 warn_unreachable = true
 pretty = true
 show_error_context = true
-
-[tool.pytest_env]
-PGHOST="localhost"
-PGPORT=5432
-PGUSER="test_user"
-PGPASSWORD="admin123"
-PGDATABASE="dbname"
-TENANT="diku"
-
-[tool.pytest.ini_options]
-log_cli = true
-log_cli_level = "INFO"

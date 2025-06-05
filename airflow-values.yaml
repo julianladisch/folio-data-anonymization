@@ -16,7 +16,7 @@ configuration:
     base_log_folder: "/opt/bitnami/airflow_logs"
   kubernetes_executor:
     in_cluster: true
-    namespace: folio-da-dev
+    namespace: $NAMESPACE
     pod_template_file: "/opt/bitnami/airflow/config/pod_template.yaml"
 auth:
   username: airflow
