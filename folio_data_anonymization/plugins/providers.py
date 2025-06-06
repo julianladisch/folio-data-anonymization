@@ -20,9 +20,9 @@ class Organizations(BaseProvider):
 
     def org_code(self):
         fake_org_code = []
-        size = random.randint(3, 15)
+        size = random.randint(7, 15)
         for i in range(size):
-            if size > 5 and i == size - 4:
+            if i == size - 4:
                 fake_org_code.append("-")
                 continue
             fake_org_code.append(faker.random_uppercase_letter())
@@ -66,3 +66,6 @@ class Users(BaseProvider):
             fake_external_system_id.append(str(faker.random_digit()))
 
         return "".join(fake_external_system_id)
+
+    def username(self):
+        return f"{faker.user_name()}{faker.word()}"
