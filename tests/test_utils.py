@@ -10,34 +10,37 @@ from psycopg2 import Error
 from airflow.exceptions import AirflowFailException
 from airflow.models import Connection
 
-from folio_data_anonymization.plugins.utils import fake_jsonb, update_row, SQLPool
-from folio_data_anonymization.plugins.sql_pool import SimpleConnectionPool
+from folio_data_anonymization.plugins.utils import fake_jsonb, update_row
 
 
 class MockCursor(pydantic.BaseModel):
-    def fetchall(self):
-        return mock_result_set()
+    def cursor(self):
+        return self
 
     def execute(self, sql_stmt, params):
         if str(params["table"]) == "diku_mod_organizations.foo":
             raise Error()
         self
 
+    def fetchall(self):
+        return mock_result_set()
+
 
 class MockConnection(pydantic.BaseModel):
+    def close(self):
+        return True
+
+    def commit(self):
+        return True
+
     def cursor(self):
         return MockCursor()
-
-
-class MockPool(pydantic.BaseModel):
-    def pool(self):
-        return self
 
     def getconn(self):
-        return MockConnection()
-
-    def cursor(self):
         return MockCursor()
+
+    def putconn(self):
+        return True
 
 
 class MockAirflowConnection(pydantic.BaseModel):
@@ -53,6 +56,17 @@ class MockAirflowConnection(pydantic.BaseModel):
 
 def mock_result_set():
     return []
+
+
+@pytest.fixture
+def mock_airflow_connection():
+    return Connection(  # noqa
+        conn_id="postgres-folio",
+        conn_type="postgres",
+        host="example.com",
+        password="pass",
+        port=9999,
+    )
 
 
 def test_org_fake_jsonb(configs):
@@ -105,21 +119,25 @@ def test_user_fake_jsonb(configs):
     assert len(user.get('customFields')) == 0
 
 
-def test_update_row(mocker):
-    mocker.patch.object(SQLPool, "connection", MockAirflowConnection)
-    mocker.patch.object(SQLPool, "pool", MockPool)
-    mocker.patch.object(SimpleConnectionPool, "getconn", MockConnection)
+def test_update_row(mocker, mock_airflow_connection):
+    mocker.patch(
+        'folio_data_anonymization.plugins.sql_pool.Connection.get_connection_from_secrets',  # noqa
+        return_value=mock_airflow_connection,
+    )
 
     uuid = "f9d5a80e-3b51-11f0-a1d0-5a0f9a6cb774"
     jsonb = {"name": "George Fox"}
     schema_table = "diku_mod_users.users"
-    assert update_row(id=uuid, jsonb=jsonb, schema_table=schema_table)
+    assert update_row(
+        id=uuid, jsonb=jsonb, schema_table=schema_table, connection=MockConnection()
+    )
 
 
-def test_failed_update_row(mocker):
-    mocker.patch.object(SQLPool, "connection", MockAirflowConnection)
-    mocker.patch.object(SQLPool, "pool", MockPool)
-    mocker.patch.object(SimpleConnectionPool, "getconn", MockConnection)
+def test_failed_update_row(mocker, mock_airflow_connection):
+    mocker.patch(
+        'folio_data_anonymization.plugins.sql_pool.Connection.get_connection_from_secrets',  # noqa
+        return_value=mock_airflow_connection,
+    )
 
     uuid = "c76983b2-3b52-11f0-a1d0-5a0f9a6cb774"
     jsonb = {"name": "The Giant Hen House"}
@@ -128,4 +146,6 @@ def test_failed_update_row(mocker):
         AirflowFailException,
         match="Failed updating diku_mod_organizations.foo uuid c76983b2-3b52-11f0-a1d0-5a0f9a6cb774",  # noqa
     ):
-        update_row(id=uuid, jsonb=jsonb, schema_table=schema_table)
+        update_row(
+            id=uuid, jsonb=jsonb, schema_table=schema_table, connection=MockConnection()
+        )
