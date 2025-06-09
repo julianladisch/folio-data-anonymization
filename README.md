@@ -73,7 +73,7 @@ export PASSWORD=$(kubectl get secret -n $NAMESPACE airflow-postgresql -o jsonpat
 helm -n $NAMESPACE upgrade --install --version 22.7.3 --set global.postgresql.auth.password=$PASSWORD -f ns-airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
 
-#### Test a DAG using a ConfigMap. 
+#### Test changes to a DAG using a ConfigMap. 
 Create a configmap from your dag file:
 ```
 kubectl -n $NAMESPACE create configmap my-dag --from-file=folio_data_anonymization/dags/my-dag.py
