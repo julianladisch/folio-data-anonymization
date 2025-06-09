@@ -45,7 +45,7 @@ poetry run python3
 echo -n $decoded_fernet_key | base64
 ```
 
-Once you have generated the desired keys and password apply it to your Kunernetes cluster using:
+Once you have generated the desired keys and password apply it to your Kubernetes cluster using:
 ```
 export NAMESPACE=<my-namespace>
 kubectl -n $NAMESPACE apply -f secret.yaml`
@@ -55,7 +55,7 @@ kubectl -n $NAMESPACE apply -f secret.yaml`
 ### Local development:
 With [Docker Desktop](https://docs.docker.com/desktop/), [Helm](https://helm.sh/docs/intro/install/) and [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/) installed, enable [Kubernetes in Docker Desktop](https://docs.docker.com/desktop/features/kubernetes/)
 
-### Using Helm to deply Airflow in the cluster:
+### Using Helm to deploy Airflow in the cluster:
 ```
 export NAMESPACE=<my-namespace>
 kubectl -n $NAMESPACE apply -f pv-volume.yaml
@@ -72,28 +72,3 @@ envsubst < airflow-values.yaml > ns-airflow-values.yaml
 export PASSWORD=$(kubectl get secret -n $NAMESPACE airflow-postgresql -o jsonpath="{.data.password}" | base64 -d)
 helm -n $NAMESPACE upgrade --install --version 22.7.3 --set global.postgresql.auth.password=$PASSWORD -f ns-airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
-
-#### Test changes to a DAG using a ConfigMap. 
-Create a configmap from your dag file:
-```
-kubectl -n $NAMESPACE create configmap my-dag --from-file=folio_data_anonymization/dags/my-dag.py
-```
-Temporarily update airflow-values.yaml to the following and then helm upgrade:
-```
-configuration:
-  core:
-    # dags_folder: "/opt/bitnami/airflow/dags/git_dags"
-    dags_folder: "/opt/bitnami/airflow/dags"
-...
-dags:
-  enabled: true
-  existingConfigmap: my-dag
-  # repositories:
-  #   - repository: "https://github.com/folio-org/folio-data-anonymization.git"
-  #     branch: "main"
-  #     name: "dags"
-  #     path: /folio_data_anonymization/dags
-```
-To re-test the dag, delete the configmap and re-apply it, then restart the deployment.
-
-(Unfortunately this only works for DAGs and not plugins.)
