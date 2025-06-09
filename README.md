@@ -95,3 +95,5 @@ dags:
   #     path: /folio_data_anonymization/dags
 ```
 To re-test the dag, delete the configmap and re-apply it, then restart the deployment.
+
+(Unfortunately this only works for DAGs and not plugins.)
