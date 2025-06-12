@@ -65,7 +65,10 @@ class Users(BaseProvider):
         for _ in range(9):
             fake_external_system_id.append(str(faker.random_digit()))
 
+        for _ in range(3):
+            fake_external_system_id.append(str(faker.random_letter()))
+
         return "".join(fake_external_system_id)
 
     def username(self):
-        return f"{faker.user_name()}{faker.word()}"
+        return f"{faker.user_name()}{faker.random_digit()}{faker.random_element(elements=('!', '#', '$', '?'))}{faker.word()}"  # noqa

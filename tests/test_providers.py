@@ -1,6 +1,7 @@
 import pytest
 
 from faker import Faker
+import re
 
 from folio_data_anonymization.plugins.providers import Organizations, Users
 
@@ -32,3 +33,9 @@ def test_org_code(custom_providers):
 def test_pronouns(custom_providers):
     fake_pronoun = custom_providers.pronouns()
     assert isinstance(fake_pronoun, str)
+
+
+def test_username(custom_providers):
+    fake_username = custom_providers.username()
+    pattern = re.compile("\\w.+\\d[!#$?]\\w.+$")
+    assert isinstance(pattern.search(fake_username), re.Match)
