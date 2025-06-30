@@ -76,3 +76,12 @@ envsubst < airflow-values.yaml > ns-airflow-values.yaml
 export PASSWORD=$(kubectl get secret -n $NAMESPACE airflow-postgresql -o jsonpath="{.data.password}" | base64 -d)
 helm -n $NAMESPACE upgrade --install --version 22.7.3 --set global.postgresql.auth.password=$PASSWORD -f ns-airflow-values.yaml airflow oci://registry-1.docker.io/bitnamicharts/airflow
 ```
+
+
+## QA Dataset with FOLIO UI
+1. If you are re-using an existing FOLIO deployment, uninstall all the modules and okapi.
+1. Update the database connection information for your FOLIO deployment to that of the anonymized database.
+1. If you are re-using an existing FOLIO deployment, update the SYSTEM_USER_PASSWORD environment variable where it is used, if desired.
+1. Install okapi and the modules for your FOLIO deployment.
+1. Create a superuser for the anonymized dataset, whose credentials are to be shared.
+1. Add the superuser to the acquisitions units that the dataset has.
