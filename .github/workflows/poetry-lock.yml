@@ -1,0 +1,25 @@
+name: update poetry.lock
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: rm peotry.lock
+      - name: Install data anonymizer + dependencies via poetry
+        run: |
+          pip install -r requirements.txt
+          poetry install
+      - run: |
+          git add poetry.lock
+          git config --local user.name 'folio data anonymization bot'
+          git config --local user.email 'folio-data-anonymization-bot@users.noreply.github.com'
+          (git commit -m "Update poetry.lock" && git push) || true   # ignore failure caused by unchanged files
